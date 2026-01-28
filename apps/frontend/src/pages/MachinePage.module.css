@@ -1,0 +1,160 @@
+﻿.page {
+  display: grid;
+  gap: 24px;
+}
+
+.hero {
+  padding: 24px 28px;
+  border-radius: 24px;
+  background: #ffffffcc;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 16px 36px rgba(15, 22, 48, 0.12);
+}
+
+.title {
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.subtitle {
+  color: #4b5178;
+}
+
+.status {
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 999px;
+}
+
+.available {
+  background: #e2ffe9;
+  color: #0c6b2e;
+}
+
+.locked {
+  background: #ffe0e0;
+  color: #a62b2b;
+}
+
+.details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  background: #ffffffcc;
+  border-radius: 24px;
+  padding: 24px;
+}
+
+.kv {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px dashed #dde1f3;
+  font-size: 14px;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tags span {
+  background: #eef1ff;
+  color: #3f43d0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.reserve {
+  margin-top: 18px;
+  border: none;
+  background: #0b0d1a;
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reserve:disabled {
+  background: #a2a7c1;
+  cursor: not-allowed;
+}
+
+.reservations {
+  display: grid;
+  gap: 14px;
+}
+
+.list {
+  display: grid;
+  gap: 12px;
+}
+
+.reservationCard {
+  background: #ffffffcc;
+  padding: 16px 20px;
+  border-radius: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sessionName {
+  font-weight: 700;
+}
+
+.sessionMeta {
+  font-size: 12px;
+  color: #4b5178;
+}
+
+.sessionActions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.badge {
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+.active {
+  background: #fff6d9;
+  color: #8b5c13;
+}
+
+.done {
+  background: #e2ffe9;
+  color: #0c6b2e;
+}
+
+.complete {
+  border: none;
+  background: #4f38f5;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.empty {
+  background: #ffffffcc;
+  padding: 16px;
+  border-radius: 16px;
+}
+
+.loading {
+  padding: 20px;
+}

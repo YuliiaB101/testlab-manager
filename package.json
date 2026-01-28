@@ -1,0 +1,14 @@
+{
+  "name": "testlab-manager",
+  "private": true,
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev:web": "yarn workspace @testlab/frontend dev",
+    "dev:frontend": "yarn workspace @testlab/frontend dev",
+    "dev:api": "yarn workspace @testlab/backend dev",
+    "dev:backend": "yarn workspace @testlab/backend dev",
+    "build:web": "yarn workspace @testlab/frontend build",
+    "seed": "yarn workspace @testlab/backend seed",
+    "db:init": "yarn workspace @testlab/backend db:init"
+  }
+}
