@@ -1,11 +1,11 @@
 ﻿import { Route, Routes, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./state/auth";
 import { NotificationsProvider } from "./state/notifications";
-import Layout from "./components/Layout";
-import HomePage from "./pages/HomePage";
-import MachinePage from "./pages/MachinePage";
-import NotificationsPage from "./pages/NotificationsPage";
-import AuthPage from "./pages/AuthPage";
+import Layout from "./components/Layout/Layout";
+import HomePage from "./pages/HomePage/HomePage";
+import MachinePage from "./pages/MachinePage/MachinePage";
+import NotificationsPage from "./pages/NotificationsPage/NotificationsPage";
+import AuthPage from "./pages/AuthPage/AuthPage";
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { user } = useAuth();

@@ -1,0 +1,141 @@
+﻿.page {
+  display: grid;
+  gap: 28px;
+}
+
+.hero {
+  padding: 32px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, #fef4f0, #eef2ff);
+  box-shadow: 0 20px 50px rgba(21, 24, 40, 0.1);
+
+  h1 {
+    margin: 0 0 8px;
+    font-size: 32px;
+  }
+
+  p {
+    margin: 0 0 20px;
+    color: #4b5178;
+  }
+}
+
+.searchRow {
+  display: flex;
+  gap: 12px;
+
+  input {
+    flex: 1;
+    border: 1px solid #d6daf2;
+    border-radius: 14px;
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  button {
+    border: none;
+    background: #0b0d1a;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 6px; /* vertical gap between rows */
+  background: transparent;
+
+  th,
+  td {
+    text-align: left;
+    padding: 12px 20px;
+    font-size: 14px;
+    border-bottom: none;
+  }
+
+  thead {
+    tr {
+      height: 48px;
+    }
+    th {
+      background: #f7f9ff; /* give each header cell the header background */
+      font-weight: 600;
+      color: #0b0d1a;
+      /* shift header labels 10px to the right */
+      padding-left: 50px;
+    }
+
+    th:first-child {
+      border-top-left-radius: 12px;
+      border-bottom-left-radius: 12px;
+    }
+
+    th:last-child {
+      border-top-right-radius: 12px;
+      border-bottom-right-radius: 12px;
+    }
+  }
+
+  tbody {
+    td {
+      background: #ffffffcc; /* row card background */
+      transition:
+        background 0.2s ease,
+        transform 0.12s ease;
+    }
+
+    tr:hover {
+      background: white;
+      box-shadow: 0 6px 18px rgba(21, 24, 40, 0.08);
+    }
+
+    td:first-child {
+      border-top-left-radius: 10px;
+      border-bottom-left-radius: 10px;
+    }
+
+    td:last-child {
+      border-top-right-radius: 10px;
+      border-bottom-right-radius: 10px;
+    }
+  }
+}
+
+.statusAvailable {
+  color: #0a8a3f;
+  font-weight: 700;
+}
+
+.statusLocked {
+  color: #c33a3a;
+  font-weight: 700;
+}
+
+.loading {
+  padding: 20px;
+  background: #ffffffcc;
+  border-radius: 16px;
+}
+
+@media (max-width: 700px) {
+  .searchRow {
+    flex-direction: column;
+  }
+  .table th,
+  .table td {
+    padding: 10px 12px;
+  }
+  .table thead th {
+    padding-left: 22px; /* reduce on small screens (12px + 10px) */
+  }
+}

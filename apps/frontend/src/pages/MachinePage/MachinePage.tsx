@@ -1,10 +1,10 @@
 ﻿import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { apiMachine, apiCreateReservation, apiReservations, apiCompleteReservation, apiNotifications } from "../services/api";
-import { Machine, Reservation } from "../types";
-import { useAuth } from "../state/auth";
-import { useNotifications } from "../state/notifications";
-import BookingWizard, { BookingPayload } from "../components/BookingWizard";
+import { apiMachine, apiCreateReservation, apiReservations, apiCompleteReservation, apiNotifications } from "../../services/api";
+import { Machine, Reservation } from "../../types";
+import { useAuth } from "../../state/auth";
+import { useNotifications } from "../../state/notifications";
+import BookingWizard, { BookingPayload } from "../../components/BookingWizard/BookingWizard";
 import styles from "./MachinePage.module.css";
 
 export default function MachinePage() {

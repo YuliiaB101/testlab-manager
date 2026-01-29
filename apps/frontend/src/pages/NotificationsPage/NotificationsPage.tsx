@@ -1,7 +1,7 @@
 ﻿import { useEffect, useState } from "react";
-import { apiNotifications } from "../services/api";
-import { useAuth } from "../state/auth";
-import { useNotifications } from "../state/notifications";
+import { apiNotifications } from "../../services/api";
+import { useAuth } from "../../state/auth";
+import { useNotifications } from "../../state/notifications";
 import styles from "./NotificationsPage.module.css";
 
 export default function NotificationsPage() {

@@ -1,7 +1,7 @@
 ﻿import { Link, NavLink, Outlet } from "react-router-dom";
-import { useAuth } from "../state/auth";
-import { useNotifications } from "../state/notifications";
-import Toast from "./Toast";
+import { useAuth } from "../../state/auth";
+import { useNotifications } from "../../state/notifications";
+import Toast from "../Toast/Toast";
 import styles from "./Layout.module.css";
 
 export default function Layout() {

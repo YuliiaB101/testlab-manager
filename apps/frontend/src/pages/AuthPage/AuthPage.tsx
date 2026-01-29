@@ -1,6 +1,6 @@
 ﻿import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../state/auth";
+import { useAuth } from "../../state/auth";
 import styles from "./AuthPage.module.css";
 
 export default function AuthPage() {

@@ -1,0 +1,44 @@
+﻿.name {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.meta {
+  color: #4b5178;
+  font-size: 13px;
+}
+
+.status {
+  text-transform: uppercase;
+  display: inline-block;
+  text-align: center;
+  min-width: 120px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 10px 12px;
+  border-radius: 999px;
+}
+
+.available {
+  background: #e2ffe9;
+  color: #0c6b2e;
+}
+
+.locked {
+  background: #ffe0e0;
+  color: #a62b2b;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tags span {
+  background: #eef1ff;
+  color: #3f43d0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+}
