@@ -1,4 +1,6 @@
-﻿import { useMemo, useState } from "react";
+﻿import React, { useMemo, useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import styles from "./BookingWizard.module.css";
 
 const durationOptions = [1, 2, 4, 8, 12, 24, 48];
@@ -24,6 +26,8 @@ export default function BookingWizard({
 }) {
   const [step, setStep] = useState(0);
   const [durationHours, setDurationHours] = useState(2);
+  const [startAt, setStartAt] = useState<Date>(() => new Date());
+  const [endAt, setEndAt] = useState<Date>(() => new Date(Date.now() + 2 * 3600 * 1000));
   const [sessionName, setSessionName] = useState("");
   const [osVersion, setOsVersion] = useState("");
   const [tools, setTools] = useState<string[]>([]);
@@ -31,11 +35,14 @@ export default function BookingWizard({
   const [testPlan, setTestPlan] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // react-datepicker types can sometimes confuse TS setup; cast to a generic component type
+  const DatePickerAny = DatePicker as unknown as React.ComponentType<any>;
+
   const canNext = useMemo(() => {
-    if (step === 0) return !!durationHours;
+    if (step === 0) return !!startAt && !!endAt && endAt.getTime() > startAt.getTime();
     if (step === 1) return sessionName.trim().length >= 2;
     return true;
-  }, [step, durationHours, sessionName]);
+  }, [step, durationHours, sessionName, startAt, endAt]);
 
   const toggle = (value: string, list: string[], setList: (next: string[]) => void) => {
     if (list.includes(value)) {
@@ -58,6 +65,14 @@ export default function BookingWizard({
       testPlan: testPlan || undefined
     });
     setLoading(false);
+  };
+
+  const handleNext = () => {
+    if (step === 0) {
+      const hours = Math.max(1, Math.round((endAt.getTime() - startAt.getTime()) / (1000 * 60 * 60)));
+      setDurationHours(hours);
+    }
+    setStep((prev) => Math.min(prev + 1, 4));
   };
 
   return (
@@ -92,17 +107,34 @@ export default function BookingWizard({
           {step === 0 && (
             <div className={styles.panel}>
               <h3>How long do you need the machine?</h3>
-              <div className={styles.grid}>
-                {durationOptions.map((value) => (
-                  <button
-                    key={value}
-                    className={`${styles.option} ${durationHours === value ? styles.selected : ""}`}
-                    onClick={() => setDurationHours(value)}
-                  >
-                    {value}h
-                  </button>
-                ))}
-              </div>
+                <div className={styles.calendarRow}>
+                  <div>
+                    <label className={styles.label}>Start</label>
+                    <DatePicker
+                      selected={startAt}
+                      onChange={(date) => date && setStartAt(date)}
+                      showTimeSelect
+                      inline
+                      timeIntervals={15}
+                      dateFormat="Pp"
+                    />
+                  </div>
+
+                  <div>
+                    <label className={styles.label}>End</label>
+                    <DatePicker
+                      selected={endAt}
+                      onChange={(date) => date && setEndAt(date)}
+                      showTimeSelect
+                      inline
+                      timeIntervals={15}
+                      dateFormat="Pp"
+                    />
+                  </div>
+                </div>
+                <div className={styles.help}>
+                  Duration: {Math.max(1, Math.round((endAt.getTime() - startAt.getTime()) / (1000 * 60 * 60)))}h
+                </div>
             </div>
           )}
 
@@ -198,7 +230,7 @@ export default function BookingWizard({
               Back
             </button>
             {step < 4 ? (
-              <button className={styles.primary} onClick={() => setStep((prev) => prev + 1)} disabled={!canNext}>
+              <button className={styles.primary} onClick={handleNext} disabled={!canNext}>
                 Next
               </button>
             ) : (

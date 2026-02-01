@@ -1,7 +1,7 @@
 ﻿import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../state/auth";
-import styles from "./AuthPage.module.css";
+import styles from "./AuthPage.module.scss";
 
 export default function AuthPage() {
   const { login, register } = useAuth();
@@ -32,63 +32,50 @@ export default function AuthPage() {
   };
 
   return (
-    <div className={styles.page}>
-      <div className={styles.panel}>
-        <div className={styles.brand}>
-          <div className={styles.logo}>TL</div>
-          <div>
-            <div className={styles.title}>TestLab Manager</div>
-            <div className={styles.subtitle}>Book, lock, and run validation on test systems.</div>
-          </div>
-        </div>
+    <div className={styles.authPage}>
+      <div className={styles.authPage__hero}>
+        <span className={styles.authPage__hero__logo}>TL</span>
+        <h1>TestLab Manager</h1>
+        <h3>Book, lock, and run validation on test systems.</h3>
+      </div>
 
-        <div className={styles.tabs}>
+      <div className={styles.authPage__form}>
+        <div className={styles.authPage__form__tabs}>
           <button
-            className={`${styles.tab} ${mode === "login" ? styles.active : ""}`}
+            className={`${styles.authPage__form__tab} ${mode === "login" ? styles.authPage__form__tab_active : ""}`}
             onClick={() => setMode("login")}
           >
             Sign in
           </button>
           <button
-            className={`${styles.tab} ${mode === "register" ? styles.active : ""}`}
+            className={`${styles.authPage__form__tab} ${mode === "register" ? styles.authPage__form__tab_active : ""}`}
             onClick={() => setMode("register")}
           >
             Create account
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className={styles.form}>
+        <form onSubmit={handleSubmit}>
           {mode === "register" && (
             <label>
               Full name
-              <input value={name} onChange={(event) => setName(event.target.value)} required />
+              <input className={styles.authPage__form__input} value={name} onChange={(event) => setName(event.target.value)} required />
             </label>
           )}
           <label>
             Email
-            <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
+            <input className={styles.authPage__form__input} type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
           </label>
           <label>
             Password
-            <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} required />
+            <input className={styles.authPage__form__input} type="password" value={password} onChange={(event) => setPassword(event.target.value)} required />
           </label>
-          {error && <div className={styles.error}>{error}</div>}
-          <button className={styles.submit} disabled={loading}>
+          {error && <div className={styles.authPage__form__error}>{error}</div>}
+
+          <button className={styles.authPage__form__submit} disabled={loading}>
             {loading ? "Please wait..." : mode === "login" ? "Sign in" : "Create account"}
           </button>
         </form>
-      </div>
-      <div className={styles.hero}>
-        <h1>Reserve test machines without back-and-forth.</h1>
-        <p>
-          Lock hardware for focused sessions, preconfigure the environment, and keep validation pipelines
-          visible to the whole team.
-        </p>
-        <ul>
-          <li>Search across OS, GPU, and lab locations</li>
-          <li>Step-by-step reservation flow with setup options</li>
-          <li>Instant completion notifications</li>
-        </ul>
       </div>
     </div>
   );

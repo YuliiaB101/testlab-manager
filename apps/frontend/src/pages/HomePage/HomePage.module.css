@@ -52,61 +52,55 @@
 .table {
   width: 100%;
   border-collapse: separate;
-  border-spacing: 0 6px; /* vertical gap between rows */
+  border-spacing: 0 6px;
   background: transparent;
 
   th,
   td {
-    text-align: left;
     padding: 12px 20px;
     font-size: 14px;
-    border-bottom: none;
+    text-align: center;
+    border-bottom: 0;
   }
 
   thead {
-    tr {
-      height: 48px;
-    }
+    tr { height: 48px; }
+
     th {
-      background: #f7f9ff; /* give each header cell the header background */
+      background: #f7f9ff;
       font-weight: 600;
       color: #0b0d1a;
-      /* shift header labels 10px to the right */
-      padding-left: 50px;
-    }
 
-    th:first-child {
-      border-top-left-radius: 12px;
-      border-bottom-left-radius: 12px;
-    }
-
-    th:last-child {
-      border-top-right-radius: 12px;
-      border-bottom-right-radius: 12px;
+      &:first-child {
+        border-radius: 12px 0 0 12px;
+      }
+      &:last-child {
+        border-radius: 0 12px 12px 0;
+      }
     }
   }
 
   tbody {
     td {
-      background: #ffffffcc; /* row card background */
-      transition:
-        background 0.2s ease,
-        transform 0.12s ease;
+      background: #ffffffcc;
+      transition: background 0.2s ease, transform 0.12s ease;
+
+      &:first-child {
+        text-align: left;
+        border-radius: 10px 0 0 10px;
+      }
+      &:last-child {
+        border-radius: 0 10px 10px 0;
+      }
+    }
+
+    tr:hover td {
+      background: #fff;
+      transform: translateY(-1px);
     }
 
     tr:hover {
-      background: white;
       box-shadow: 0 6px 18px rgba(21, 24, 40, 0.08);
-    }
-
-    td:first-child {
-      border-top-left-radius: 10px;
-      border-bottom-left-radius: 10px;
-    }
-
-    td:last-child {
-      border-top-right-radius: 10px;
-      border-bottom-right-radius: 10px;
     }
   }
 }

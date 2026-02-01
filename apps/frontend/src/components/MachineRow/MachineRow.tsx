@@ -6,9 +6,12 @@ export default function MachineRow({ machine }: { machine: Machine }) {
   return (
     <tr>
       <td>
-        <Link to={`/machines/${machine.id}`} className={styles.name}>
-          {machine.name}
-        </Link>
+        <div className={styles.titleRow}>
+          <Link to={`/machines/${machine.id}`} className={styles.name}>
+            {machine.name}
+          </Link>
+          <div className={styles.tags}>{machine.tags.map(tag => <span key={tag}>{tag}</span>)}</div>
+        </div>
         <div className={styles.meta}>{machine.type} - {machine.os}</div>
       </td>
       <td>{machine.cpu}</td>

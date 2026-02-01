@@ -1,0 +1,108 @@
+@use "../../styles/mixins" as *;
+@use "../../styles/variables" as *;
+
+.authPage {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: $background;
+
+  &__hero {
+    padding: 50px 200px;
+    background: linear-gradient(140deg, $primary-dark, $primary);
+    color: $background;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas: "logo title" "logo subtitle";
+    gap: 12px 20px;
+    align-items: center;
+
+    &__logo {
+      background: $background;
+      color: $primary-dark;
+      width: 60px;
+      height: 60px;
+      border-radius: 18px;
+      display: grid;
+      justify-content: center;
+      place-items: center;
+      font-size: 20px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    h1 {
+      grid-area: title;
+      font-size: 32px;
+      margin: 0;
+    }
+
+    h3 {
+      grid-area: subtitle;
+      margin: 0;
+      font-weight: 400;
+      font-size: 18px;
+      color: rgba(244, 246, 255, 0.95);
+    }
+  }
+
+  &__form {
+    align-self: center;
+    align-items: center;
+    padding: 60px 80px;
+    margin: 40px 0;
+    background: white;
+    border-radius: 18px;
+    border: 1px solid $border;
+    width: 700px;
+    display: grid;
+    gap: 30px;
+
+    label {
+      display: grid;
+      gap: 6px;
+      font-size: 14px;
+      color: $text-secondary;
+    }
+
+    &__tabs {
+      display: flex;
+      gap: 14px;
+    }
+
+    &__tab {
+      border: 1px solid $border;
+      background: transparent;
+      @include button-base(10px 16px);
+
+      &_active {
+        background: $primary-dark;
+        color: $background;
+        border-color: $primary-dark;
+      }
+    }
+
+    &__input {
+      @include input-base($border);
+      display: grid;
+      gap: 22px;
+      margin-bottom: 22px;
+    }
+
+    &__submit {
+      margin-top: 10px;
+      border: none;
+      background: $primary;
+      color: $background;
+      @include button-base(12px 16px);
+    }
+
+    &__error {
+      color: $error;
+      background: $error-light;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+  }
+}
