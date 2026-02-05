@@ -6,6 +6,7 @@ import { useAuth } from "../../state/auth";
 import { useNotifications } from "../../state/notifications";
 import BookingWizard, { BookingPayload } from "../../components/BookingWizard/BookingWizard";
 import styles from "./MachinePage.module.scss";
+import DeviceStatusBadge from "../../components/DeviceStatusBadge/DeviceStatusBadge";
 
 export default function MachinePage() {
   const { id } = useParams();
@@ -66,9 +67,7 @@ export default function MachinePage() {
           <div className={styles.title}>{machine.name}</div>
           <div className={styles.subtitle}>{machine.type} - {machine.os}</div>
         </div>
-        <div className={`${styles.status} ${machine.status === "reserved" ? styles.reserved : styles.available}`}>
-          {machine.status}
-        </div>
+        <DeviceStatusBadge status={machine.status} />
       </section>
 
       <section className={styles.details}>

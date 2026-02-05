@@ -136,7 +136,7 @@ app.post("/api/machines/:id/reservations", requireAuth, async (req: AuthRequest,
       [req.userId, machineId, sessionName, startAt, endAt, setupOptions || {}, testPlan || null]
     );
 
-    await client.query("UPDATE machines SET status='locked' WHERE id=$1", [machineId]);
+    await client.query("UPDATE machines SET status='reserved' WHERE id=$1", [machineId]);
     await client.query("COMMIT");
 
     res.json({ reservation: reservationRes.rows[0] });

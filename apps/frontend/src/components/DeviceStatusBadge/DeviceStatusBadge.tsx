@@ -2,7 +2,7 @@ import styles from "./DeviceStatusBadge.module.scss";
 
 const STATUS_CONFIG = {
   available: { label: 'Available', color: 'green' },
-  reserved: { label: 'Reserved', color: 'blue' },
+  reserved: { label: 'Reserved', color: 'yellow' },
   locked: { label: 'Locked', color: 'red' },
   offline: { label: 'Offline', color: 'gray' },
 };

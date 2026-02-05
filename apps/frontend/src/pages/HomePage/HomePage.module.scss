@@ -8,8 +8,8 @@
   &__hero {
     padding: 20px 24px;
     border-radius: 16px;
-    background: rgba($color-light, 0.6);
-    border: 1px solid rgba($color-border, 0.6);
+    background: rgba(#fff, 0.65);
+    border: 1px solid $color-border-strong;
     box-shadow: 0 6px 18px rgba(21, 24, 40, 0.06);
 
     h1 {
@@ -38,7 +38,7 @@
       border-radius: 12px;
       padding: 10px 14px;
       font-size: 14px;
-      background: rgba(#fff, 0.65);
+      background: rgba($color-light, 0.6);
       transition:
         border-color 0.15s ease,
         box-shadow 0.15s ease,
@@ -90,7 +90,7 @@
   &__loading {
     padding: 16px;
     background: rgba(#fff, 0.75);
-    border: 1px solid rgba($color-border, 0.6);
+    border: 1px solid $color-border-strong;
     border-radius: 14px;
     box-shadow: 0 2px 10px rgba(21, 24, 40, 0.05);
   }
@@ -100,7 +100,7 @@
     border-collapse: separate;
     border-spacing: 0;
     background: #fff;
-    border: 1px solid rgba($color-border, 0.6);
+    border: 1px solid $color-border-strong;
     border-radius: 14px;
     overflow: hidden;
     box-shadow: 0 6px 18px rgba(21, 24, 40, 0.06);
@@ -109,8 +109,8 @@
     td {
       padding: 10px 14px;
       font-size: 14px;
-      text-align: left; // more B2B / faster scanning
-      border-bottom: 1px solid rgba($color-border, 0.7);
+      text-align: left;
+      border-bottom: 1px solid $color-border-strong;
       vertical-align: middle;
     }
 
@@ -126,7 +126,7 @@
         text-transform: uppercase;
         letter-spacing: 0.06em;
         font-size: 12px;
-        border-bottom: 1px solid rgba($color-border, 0.9);
+        border-bottom: 1px solid $color-border-strong;
       }
     }
 
@@ -141,10 +141,9 @@
       }
 
       tr:hover td {
-        background: rgba(#2b5cff, 0.035); // subtle, not "card hover"
+        background: rgba(#2b5cff, 0.035);
       }
 
-      // first column emphasis (name)
       td:first-child {
         font-weight: 650;
         color: #0b0d1a;
@@ -169,129 +168,4 @@
       }
     }
   }
-
-  // &__hero {
-  //   padding: 32px;
-  //   border-radius: 28px;
-  //   background: linear-gradient(135deg, $color-light, $color-lighter);
-  //   box-shadow: 0 20px 50px rgba(21, 24, 40, 0.1);
-
-  //   h1 {
-  //     margin: 0 0 8px;
-  //     font-size: 32px;
-  //   }
-
-  //   p {
-  //     margin: 0 0 20px;
-  //     color: $color-muted;
-  //   }
-  // }
-
-  // &__searchRow {
-  //   display: flex;
-  //   gap: 12px;
-
-  //   input {
-  //     flex: 1;
-  //     border: 1px solid $color-border;
-  //     border-radius: 14px;
-  //     padding: 12px 16px;
-  //     font-size: 14px;
-  //   }
-
-  //   button {
-  //     border: none;
-  //     background: #0b0d1a;
-  //     color: #fff;
-  //     padding: 12px 20px;
-  //     border-radius: 14px;
-  //     font-weight: 600;
-  //     cursor: pointer;
-  //   }
-  // }
-
-  // &__grid {
-  //   display: grid;
-  //   grid-template-columns: 1fr;
-  //   gap: 20px;
-  // }
-
-  // &__loading {
-  //   padding: 20px;
-  //   background: #ffffffcc;
-  //   border-radius: 16px;
-  // }
-
-  // &__table {
-  //   width: 100%;
-  //   border-collapse: separate;
-  //   border-spacing: 0 6px;
-  //   background: transparent;
-
-  //   th,
-  //   td {
-  //     padding: 12px 20px;
-  //     font-size: 14px;
-  //     text-align: center;
-  //     border-bottom: 0;
-  //   }
-
-  //   thead {
-  //     tr {
-  //       height: 48px;
-  //     }
-
-  //     th {
-  //       background: #f7f9ff;
-  //       font-weight: 600;
-  //       color: #0b0d1a;
-
-  //       &:first-child {
-  //         border-radius: 12px 0 0 12px;
-  //       }
-  //       &:last-child {
-  //         border-radius: 0 12px 12px 0;
-  //       }
-  //     }
-  //   }
-
-  //   tbody {
-  //     td {
-  //       background: #ffffffcc;
-  //       transition:
-  //         background 0.2s ease,
-  //         transform 0.12s ease;
-
-  //       &:first-child {
-  //         text-align: left;
-  //         border-radius: 10px 0 0 10px;
-  //       }
-  //       &:last-child {
-  //         border-radius: 0 10px 10px 0;
-  //       }
-  //     }
-
-  //     tr:hover td {
-  //       background: #fff;
-  //       transform: translateY(-1px);
-  //     }
-
-  //     tr:hover {
-  //       box-shadow: 0 6px 18px rgba(21, 24, 40, 0.08);
-  //     }
-  //   }
-  // }
-
-  // @media (max-width: 700px) {
-  //   .searchRow {
-  //     flex-direction: column;
-  //   }
-  //   .table th,
-  //   .table td {
-  //     padding: 10px 12px;
-  //   }
-  //   .table thead th {
-  //     padding-left: 22px; /* reduce on small screens (12px + 10px) */
-  //   }
-  // }
 }
