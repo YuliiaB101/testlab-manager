@@ -5,7 +5,7 @@ import { Machine, Reservation } from "../../types";
 import { useAuth } from "../../state/auth";
 import { useNotifications } from "../../state/notifications";
 import BookingWizard, { BookingPayload } from "../../components/BookingWizard/BookingWizard";
-import styles from "./MachinePage.module.css";
+import styles from "./MachinePage.module.scss";
 
 export default function MachinePage() {
   const { id } = useParams();
@@ -66,7 +66,7 @@ export default function MachinePage() {
           <div className={styles.title}>{machine.name}</div>
           <div className={styles.subtitle}>{machine.type} - {machine.os}</div>
         </div>
-        <div className={`${styles.status} ${machine.status === "locked" ? styles.locked : styles.available}`}>
+        <div className={`${styles.status} ${machine.status === "reserved" ? styles.reserved : styles.available}`}>
           {machine.status}
         </div>
       </section>
@@ -87,8 +87,8 @@ export default function MachinePage() {
               <span key={tag}>{tag}</span>
             ))}
           </div>
-          <button className={styles.reserve} onClick={() => setShowModal(true)} disabled={machine.status === "locked"}>
-            {machine.status === "locked" ? "Machine locked" : "Lock this machine"}
+          <button className={styles.reserve} onClick={() => setShowModal(true)} disabled={machine.status === "reserved"}>
+            {machine.status === "reserved" ? "Machine reserved" : "Reserve this machine"}
           </button>
         </div>
       </section>

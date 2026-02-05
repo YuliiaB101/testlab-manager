@@ -2,7 +2,7 @@
 import { apiNotifications } from "../../services/api";
 import { useAuth } from "../../state/auth";
 import { useNotifications } from "../../state/notifications";
-import styles from "./NotificationsPage.module.css";
+import styles from "./NotificationsPage.module.scss";
 
 export default function NotificationsPage() {
   const { token } = useAuth();

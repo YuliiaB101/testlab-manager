@@ -124,9 +124,9 @@ app.post("/api/machines/:id/reservations", requireAuth, async (req: AuthRequest,
       await client.query("ROLLBACK");
       return res.status(404).json({ error: "Machine not found" });
     }
-    if (machineRes.rows[0].status === "locked") {
+    if (machineRes.rows[0].status === "reserved") {
       await client.query("ROLLBACK");
-      return res.status(409).json({ error: "Machine is locked" });
+      return res.status(409).json({ error: "Machine is reserved" });
     }
 
     const reservationRes = await client.query(

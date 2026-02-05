@@ -1,0 +1,55 @@
+@use "../../styles/mixins" as *;
+@use "../../styles/variables" as *;
+
+.machineRow {
+  &__titleRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    /* prevent tags from wrapping to next line; allow name to truncate if needed */
+  }
+
+  &__name {
+    font-size: 18px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 55ch;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  &__meta {
+    color: #4b5178;
+    font-size: 13px;
+    margin-top: 6px;
+  }
+
+  &__status {
+    text-transform: uppercase;
+    display: inline-block;
+    text-align: center;
+    min-width: 140px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 12px 16px;
+    border-radius: 999px;
+  }
+
+  &__tags {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+    align-items: center;
+
+    span {
+      background: #eef1ff;
+      color: #3f43d0;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+    }
+  }
+}

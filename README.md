@@ -41,5 +41,5 @@ yarn dev:frontend
 
 ## Notes
 - Seed creates 12 mock machines.
-- Booking sets machine status to `locked` until the job is completed.
+- Booking sets machine status to `Reserved` until the job is completed.
 - Notifications show in-app and on the notifications page.

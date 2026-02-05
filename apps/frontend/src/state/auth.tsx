@@ -5,6 +5,7 @@ import { User } from "../types";
 interface AuthContextValue {
   user: User | null;
   token: string | null;
+  initialized: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
@@ -15,16 +16,23 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(() => localStorage.getItem("tlm_token"));
+  const [initialized, setInitialized] = useState(false);
 
+  // mark initialized once we attempted to load current user
   useEffect(() => {
-    if (!token) return;
+    if (!token) {
+      setInitialized(true);
+      return;
+    }
+    setInitialized(false);
     apiMe(token)
       .then((data) => setUser(data.user))
       .catch(() => {
         setToken(null);
         setUser(null);
         localStorage.removeItem("tlm_token");
-      });
+      })
+      .finally(() => setInitialized(true));
   }, [token]);
 
   const login = async (email: string, password: string) => {
@@ -48,8 +56,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const value = useMemo(
-    () => ({ user, token, login, register, logout }),
-    [user, token]
+    () => ({ user, token, initialized, login, register, logout }),
+    [user, token, initialized]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,5 +1,5 @@
 ﻿import { Notification } from "../types";
-import styles from "./Toast.module.css";
+import styles from "./Toast.module.scss";
 
 export default function Toast({
   notification,

@@ -1,7 +1,7 @@
 ﻿import React, { useMemo, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import styles from "./BookingWizard.module.css";
+import styles from "./BookingWizard.module.scss";
 
 const durationOptions = [1, 2, 4, 8, 12, 24, 48];
 const toolOptions = ["Docker", "Chrome", "Node.js LTS", "Python 3.12", "CUDA 12", "Android SDK"];
@@ -76,19 +76,19 @@ export default function BookingWizard({
   };
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.modal}>
-        <header className={styles.header}>
+    <div className={styles.bookingWizard__overlay}>
+      <div className={styles.bookingWizard__modal}>
+        <header className={styles.bookingWizard__header}>
           <div>
-            <div className={styles.title}>Lock {machineName}</div>
-            <div className={styles.subtitle}>Configure the session in a few steps.</div>
+            <div className={styles.bookingWizard__title}>Lock {machineName}</div>
+            <div className={styles.bookingWizard__subtitle}>Configure the session in a few steps.</div>
           </div>
-          <button className={styles.close} onClick={onClose}>
+          <button className={styles.bookingWizard__close} onClick={onClose}>
             Close
           </button>
         </header>
 
-        <div className={styles.stepper}>
+        <div className={styles.bookingWizard__stepper}>
           {[
             "Duration",
             "Session",
@@ -103,14 +103,14 @@ export default function BookingWizard({
           ))}
         </div>
 
-        <div className={styles.content}>
+        <div className={styles.bookingWizard__content}>
           {step === 0 && (
-            <div className={styles.panel}>
+            <div className={styles.bookingWizard__panel}>
               <h3>How long do you need the machine?</h3>
-                <div className={styles.calendarRow}>
+                <div className={styles.bookingWizard__calendarRow}>
                   <div>
-                    <label className={styles.label}>Start</label>
-                    <DatePicker
+                    <label className={styles.bookingWizard__label}>Start</label>
+                    <DatePickerAny
                       selected={startAt}
                       onChange={(date) => date && setStartAt(date)}
                       showTimeSelect
@@ -121,8 +121,8 @@ export default function BookingWizard({
                   </div>
 
                   <div>
-                    <label className={styles.label}>End</label>
-                    <DatePicker
+                    <label className={styles.bookingWizard__label}>End</label>
+                    <DatePickerAny
                       selected={endAt}
                       onChange={(date) => date && setEndAt(date)}
                       showTimeSelect
@@ -132,55 +132,55 @@ export default function BookingWizard({
                     />
                   </div>
                 </div>
-                <div className={styles.help}>
+                <div className={styles.bookingWizard__help}>
                   Duration: {Math.max(1, Math.round((endAt.getTime() - startAt.getTime()) / (1000 * 60 * 60)))}h
                 </div>
             </div>
           )}
 
           {step === 1 && (
-            <div className={styles.panel}>
+            <div className={styles.bookingWizard__panel}>
               <h3>Name your session</h3>
               <input
-                className={styles.input}
+                className={styles.bookingWizard__input}
                 placeholder="e.g. Android smoke run"
                 value={sessionName}
                 onChange={(event) => setSessionName(event.target.value)}
               />
-              <p className={styles.help}>This will appear in reservations and notifications.</p>
+              <p className={styles.bookingWizard__help}>This will appear in reservations and notifications.</p>
             </div>
           )}
 
           {step === 2 && (
-            <div className={styles.panel}>
+            <div className={styles.bookingWizard__panel}>
               <h3>Setup options</h3>
-              <label className={styles.label}>OS preset</label>
-              <select className={styles.select} value={osVersion} onChange={(event) => setOsVersion(event.target.value)}>
+              <label className={styles.bookingWizard__label}>OS preset</label>
+              <select className={styles.bookingWizard__select} value={osVersion} onChange={(event) => setOsVersion(event.target.value)}>
                 <option value="">Keep current OS</option>
                 {osPresets.map((os) => (
                   <option key={os} value={os}>{os}</option>
                 ))}
               </select>
-              <label className={styles.label}>Tools</label>
-              <div className={styles.badges}>
+              <label className={styles.bookingWizard__label}>Tools</label>
+              <div className={styles.bookingWizard__badges}>
                 {toolOptions.map((tool) => (
                   <button
                     type="button"
                     key={tool}
-                    className={`${styles.badge} ${tools.includes(tool) ? styles.selected : ""}`}
+                    className={`${styles.bookingWizard__badge} ${tools.includes(tool) ? styles.bookingWizard__badge_selected : ""}`}
                     onClick={() => toggle(tool, tools, setTools)}
                   >
                     {tool}
                   </button>
                 ))}
               </div>
-              <label className={styles.label}>Flags</label>
-              <div className={styles.badges}>
+              <label className={styles.bookingWizard__label}>Flags</label>
+              <div className={styles.bookingWizard__badges}>
                 {flagOptions.map((flag) => (
                   <button
                     type="button"
                     key={flag}
-                    className={`${styles.badge} ${flags.includes(flag) ? styles.selected : ""}`}
+                    className={`${styles.bookingWizard__badge} ${flags.includes(flag) ? styles.bookingWizard__badge_selected : ""}`}
                     onClick={() => toggle(flag, flags, setFlags)}
                   >
                     {flag}
@@ -191,10 +191,10 @@ export default function BookingWizard({
           )}
 
           {step === 3 && (
-            <div className={styles.panel}>
+            <div className={styles.bookingWizard__panel}>
               <h3>Test plan</h3>
               <textarea
-                className={styles.textarea}
+                className={styles.bookingWizard__textarea}
                 placeholder="Describe the validation or job to run..."
                 value={testPlan}
                 onChange={(event) => setTestPlan(event.target.value)}
@@ -203,9 +203,9 @@ export default function BookingWizard({
           )}
 
           {step === 4 && (
-            <div className={styles.panel}>
+            <div className={styles.bookingWizard__panel}>
               <h3>Review</h3>
-              <div className={styles.review}>
+              <div className={styles.bookingWizard__review}>
                 <div><strong>Duration:</strong> {durationHours} hours</div>
                 <div><strong>Session:</strong> {sessionName}</div>
                 <div><strong>OS:</strong> {osVersion || "Keep current"}</div>
@@ -217,24 +217,24 @@ export default function BookingWizard({
           )}
         </div>
 
-        <footer className={styles.footer}>
-          <button className={styles.secondary} onClick={onClose}>
+        <footer className={styles.bookingWizard__footer}>
+          <button className={styles.bookingWizard__secondary} onClick={onClose}>
             Cancel
           </button>
-          <div className={styles.actions}>
+          <div className={styles.bookingWizard__actions}>
             <button
-              className={styles.secondary}
+              className={styles.bookingWizard__secondary}
               onClick={() => setStep((prev) => Math.max(prev - 1, 0))}
               disabled={step === 0}
             >
               Back
             </button>
             {step < 4 ? (
-              <button className={styles.primary} onClick={handleNext} disabled={!canNext}>
+              <button className={styles.bookingWizard__primary} onClick={handleNext} disabled={!canNext}>
                 Next
               </button>
             ) : (
-              <button className={styles.primary} onClick={handleSubmit} disabled={loading}>
+              <button className={styles.bookingWizard__primary} onClick={handleSubmit} disabled={loading}>
                 {loading ? "Locking..." : "Lock machine"}
               </button>
             )}

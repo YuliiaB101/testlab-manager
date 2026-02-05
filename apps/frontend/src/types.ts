@@ -15,7 +15,7 @@ export interface Machine {
   storage_gb: number;
   location: string;
   tags: string[];
-  status: "available" | "locked";
+  status: "available" | "locked" | "offline" | "reserved";
 }
 
 export interface Reservation {
@@ -26,7 +26,7 @@ export interface Reservation {
   session_name: string;
   start_at: string;
   end_at: string;
-  status: "active" | "completed";
+  status: "active" | "completed" | "cancelled";
   setup_options: {
     osVersion?: string;
     tools?: string[];

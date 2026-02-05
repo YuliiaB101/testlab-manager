@@ -1,27 +1,26 @@
 import { Link } from "react-router-dom";
 import { Machine } from "../../types";
-import styles from "./MachineRow.module.css";
+import styles from "./MachineRow.module.scss";
+import DeviceStatusBadge from "../DeviceStatusBadge/DeviceStatusBadge";
 
 export default function MachineRow({ machine }: { machine: Machine }) {
   return (
     <tr>
       <td>
-        <div className={styles.titleRow}>
-          <Link to={`/machines/${machine.id}`} className={styles.name}>
+        <div className={styles.machineRow__titleRow}>
+          <Link to={`/machines/${machine.id}`} className={styles.machineRow__name}>
             {machine.name}
           </Link>
-          <div className={styles.tags}>{machine.tags.map(tag => <span key={tag}>{tag}</span>)}</div>
+          <div className={styles.machineRow__tags}>{machine.tags.map(tag => <span key={tag}>{tag}</span>)}</div>
         </div>
-        <div className={styles.meta}>{machine.type} - {machine.os}</div>
+        <div className={styles.machineRow__meta}>{machine.type} - {machine.os}</div>
       </td>
       <td>{machine.cpu}</td>
       <td>{machine.ram_gb} GB</td>
       <td>{machine.gpu ?? "—"}</td>
       <td>{machine.location}</td>
       <td>
-        <span className={`${styles.status} ${machine.status === "locked" ? styles.locked : styles.available}`}>
-          {machine.status === "available" ? "Available" : "Locked"}
-        </span>
+        <DeviceStatusBadge status={machine.status} />
       </td>
     </tr>
   );
