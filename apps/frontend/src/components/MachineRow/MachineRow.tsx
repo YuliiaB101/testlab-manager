@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Machine } from "../../types";
+import StatusBadge from "../StatusBadge/StatusBadge";
 import styles from "./MachineRow.module.scss";
-import DeviceStatusBadge from "../DeviceStatusBadge/DeviceStatusBadge";
 
 export default function MachineRow({ machine }: { machine: Machine }) {
   return (
@@ -20,7 +20,7 @@ export default function MachineRow({ machine }: { machine: Machine }) {
       <td>{machine.gpu ?? "—"}</td>
       <td>{machine.location}</td>
       <td>
-        <DeviceStatusBadge status={machine.status} />
+        <StatusBadge status={machine.status} />
       </td>
     </tr>
   );

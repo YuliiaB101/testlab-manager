@@ -6,7 +6,7 @@ import { useAuth } from "../../state/auth";
 import { useNotifications } from "../../state/notifications";
 import BookingWizard, { BookingPayload } from "../../components/BookingWizard/BookingWizard";
 import styles from "./MachinePage.module.scss";
-import DeviceStatusBadge from "../../components/DeviceStatusBadge/DeviceStatusBadge";
+import StatusBadge from "../../components/StatusBadge/StatusBadge";
 
 export default function MachinePage() {
   const { id } = useParams();
@@ -61,57 +61,55 @@ export default function MachinePage() {
   }
 
   return (
-    <div className={styles.page}>
-      <section className={styles.hero}>
+    <div className={styles.machinePage}>
+      <section className={styles.machinePage__hero}>
         <div>
-          <div className={styles.title}>{machine.name}</div>
-          <div className={styles.subtitle}>{machine.type} - {machine.os}</div>
+          <div className={styles.machinePage__hero__title}>{machine.name}</div>
+          <div className={styles.machinePage__hero__subtitle}>{machine.type} - {machine.os}</div>
         </div>
-        <DeviceStatusBadge status={machine.status} />
+        <StatusBadge status={machine.status} />
       </section>
 
-      <section className={styles.details}>
+      <section className={styles.machinePage__details}>
         <div>
           <h3>Hardware</h3>
-          <div className={styles.kv}><span>CPU</span><strong>{machine.cpu}</strong></div>
-          <div className={styles.kv}><span>RAM</span><strong>{machine.ram_gb} GB</strong></div>
-          <div className={styles.kv}><span>GPU</span><strong>{machine.gpu || "-"}</strong></div>
-          <div className={styles.kv}><span>Storage</span><strong>{machine.storage_gb} GB</strong></div>
-          <div className={styles.kv}><span>Location</span><strong>{machine.location}</strong></div>
+          <div className={styles.machinePage__details__kv}><span>CPU</span><strong>{machine.cpu}</strong></div>
+          <div className={styles.machinePage__details__kv}><span>RAM</span><strong>{machine.ram_gb} GB</strong></div>
+          <div className={styles.machinePage__details__kv}><span>GPU</span><strong>{machine.gpu || "-"}</strong></div>
+          <div className={styles.machinePage__details__kv}><span>Storage</span><strong>{machine.storage_gb} GB</strong></div>
+          <div className={styles.machinePage__details__kv}><span>Location</span><strong>{machine.location}</strong></div>
         </div>
         <div>
           <h3>Tags</h3>
-          <div className={styles.tags}>
+          <div className={styles.machinePage__details__tags}>
             {machine.tags.map((tag) => (
               <span key={tag}>{tag}</span>
             ))}
           </div>
-          <button className={styles.reserve} onClick={() => setShowModal(true)} disabled={machine.status === "reserved"}>
+          <button className={styles.machinePage__details__reserve} onClick={() => setShowModal(true)} disabled={machine.status === "reserved"}>
             {machine.status === "reserved" ? "Machine reserved" : "Reserve this machine"}
           </button>
         </div>
       </section>
 
-      <section className={styles.reservations}>
+      <section className={styles.machinePage__reservations}>
         <h3>My sessions on this machine</h3>
         {reservations.length === 0 ? (
-          <div className={styles.empty}>No reservations yet.</div>
+          <div className={styles.machinePage__reservations__empty}>No reservations yet.</div>
         ) : (
-          <div className={styles.list}>
+          <div className={styles.machinePage__reservations__list}>
             {reservations.map((resv) => (
-              <div key={resv.id} className={styles.reservationCard}>
+              <div key={resv.id} className={styles.machinePage__reservations__card}>
                 <div>
-                  <div className={styles.sessionName}>{resv.session_name}</div>
-                  <div className={styles.sessionMeta}>
+                  <div className={styles.machinePage__reservations__sessionName}>{resv.session_name}</div>
+                  <div className={styles.machinePage__reservations__sessionMeta}>
                     {new Date(resv.start_at).toLocaleString()} - {new Date(resv.end_at).toLocaleString()}
                   </div>
                 </div>
-                <div className={styles.sessionActions}>
-                  <span className={`${styles.badge} ${resv.status === "active" ? styles.active : styles.done}`}>
-                    {resv.status}
-                  </span>
+                <div className={styles.machinePage__reservations__sessionActions}>
+                  <StatusBadge status={resv.status} />
                   {resv.status === "active" && (
-                    <button className={styles.complete} onClick={() => handleComplete(resv.id)}>
+                    <button className={styles.machinePage__reservations__complete} onClick={() => handleComplete(resv.id)}>
                       Complete job
                     </button>
                   )}

@@ -1,9 +1,7 @@
 ﻿import React, { useMemo, useState } from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import CalendarTimePicker from "../CalendarTimePicker/CalendarTimePicker";
 import styles from "./BookingWizard.module.scss";
 
-const durationOptions = [1, 2, 4, 8, 12, 24, 48];
 const toolOptions = ["Docker", "Chrome", "Node.js LTS", "Python 3.12", "CUDA 12", "Android SDK"];
 const flagOptions = ["Enable debug ports", "Clear temp before start", "Allow remote desktop", "Disable auto-updates"];
 const osPresets = ["Windows 11 23H2", "Windows 10 22H2", "Ubuntu 22.04", "Ubuntu 20.04", "macOS Sonoma"];
@@ -35,8 +33,10 @@ export default function BookingWizard({
   const [testPlan, setTestPlan] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // react-datepicker types can sometimes confuse TS setup; cast to a generic component type
-  const DatePickerAny = DatePicker as unknown as React.ComponentType<any>;
+  const currentDurationHours = useMemo(
+    () => Math.max(1, Math.round((endAt.getTime() - startAt.getTime()) / (1000 * 60 * 60))),
+    [startAt, endAt]
+  );
 
   const canNext = useMemo(() => {
     if (step === 0) return !!startAt && !!endAt && endAt.getTime() > startAt.getTime();
@@ -89,52 +89,43 @@ export default function BookingWizard({
         </header>
 
         <div className={styles.bookingWizard__stepper}>
-          {[
-            "Duration",
-            "Session",
-            "Setup",
-            "Test",
-            "Review"
-          ].map((label, index) => (
-            <div key={label} className={`${styles.step} ${index <= step ? styles.active : ""}`}>
-              <span>{index + 1}</span>
-              {label}
-            </div>
-          ))}
+          {
+            [
+              "Duration",
+              "Session",
+              "Setup",
+              "Test",
+              "Review"
+            ].map((label, index) => {
+              const modifierKey = index < step ? "bookingWizard__step--done" : index === step ? "bookingWizard__step--active" : "";
+              const stepClass = `${styles.bookingWizard__step} ${modifierKey ? styles[modifierKey] : ""}`;
+              return (
+                <div key={label} className={stepClass}>
+                  <span>{index + 1}</span>
+                  {label}
+                </div>
+              );
+            })
+          }
         </div>
 
         <div className={styles.bookingWizard__content}>
           {step === 0 && (
             <div className={styles.bookingWizard__panel}>
               <h3>How long do you need the machine?</h3>
-                <div className={styles.bookingWizard__calendarRow}>
-                  <div>
-                    <label className={styles.bookingWizard__label}>Start</label>
-                    <DatePickerAny
-                      selected={startAt}
-                      onChange={(date) => date && setStartAt(date)}
-                      showTimeSelect
-                      inline
-                      timeIntervals={15}
-                      dateFormat="Pp"
-                    />
-                  </div>
-
-                  <div>
-                    <label className={styles.bookingWizard__label}>End</label>
-                    <DatePickerAny
-                      selected={endAt}
-                      onChange={(date) => date && setEndAt(date)}
-                      showTimeSelect
-                      inline
-                      timeIntervals={15}
-                      dateFormat="Pp"
-                    />
-                  </div>
-                </div>
-                <div className={styles.bookingWizard__help}>
-                  Duration: {Math.max(1, Math.round((endAt.getTime() - startAt.getTime()) / (1000 * 60 * 60)))}h
-                </div>
+              <CalendarTimePicker
+                startAt={startAt}
+                endAt={endAt}
+                durationHours={durationHours}
+                onChange={({ startAt: nextStart, endAt: nextEnd, durationHours: nextDuration }) => {
+                  setStartAt(nextStart);
+                  setEndAt(nextEnd);
+                  setDurationHours(nextDuration);
+                }}
+              />
+              <div className={styles.bookingWizard__help}>
+                Duration: {currentDurationHours}h
+              </div>
             </div>
           )}
 

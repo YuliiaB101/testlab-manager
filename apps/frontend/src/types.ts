@@ -2,6 +2,7 @@
   id: number;
   name: string;
   email: string;
+  role: "user" | "admin";
 }
 
 export interface Machine {
@@ -41,4 +42,5 @@ export interface Notification {
   body: string;
   created_at: string;
   read: boolean;
+  status: "info" | "warning" | "error" | "success";
 }

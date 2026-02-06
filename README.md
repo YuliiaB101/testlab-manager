@@ -40,6 +40,13 @@ yarn dev:frontend
 ```
 
 ## Notes
-- Seed creates 12 mock machines.
+- Seed creates 42 mock machines.
 - Booking sets machine status to `Reserved` until the job is completed.
 - Notifications show in-app and on the notifications page.
+
+### Device Statuses
+
+- **Available** – device is free to use
+- **Reserved** – device is booked for a specific time slot
+- **Locked** – device is intentionally unavailable (maintenance, issues)
+- **Offline** – device is not reachable

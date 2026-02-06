@@ -25,7 +25,7 @@ export default function App() {
             element={
               <ProtectedRoute>
                   <Header />
-                </ProtectedRoute>
+              </ProtectedRoute>
             }
           >
             <Route index element={<HomePage />} />

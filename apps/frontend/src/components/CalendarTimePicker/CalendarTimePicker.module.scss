@@ -1,0 +1,148 @@
+@use "../../styles/mixins" as *;
+@use "../../styles/variables" as *;
+
+.calendarTimePicker {
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 30px;
+  }
+
+  &__option {
+    border: 1px solid rgba(#0b0d1a, 0.12);
+    border-radius: 12px;
+    background: #fff;
+    padding: 10px 12px;
+
+    font-weight: 650;
+    color: rgba(#0b0d1a, 0.85);
+    cursor: pointer;
+
+    transition:
+      box-shadow 0.15s ease,
+      border-color 0.15s ease,
+      background 0.15s ease;
+
+    &:hover {
+      border-color: rgba($accent, 0.25);
+      background: rgba($accent, 0.03);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba($accent, 0.16);
+    }
+  }
+
+  &__option_selected {
+    border-color: rgba($accent, 0.4);
+    background: rgba($accent, 0.16);
+    color: rgba($accent, 0.92);
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    align-items: start;
+  }
+
+  &__label {
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.02em;
+  }
+
+  &__field {
+    display: grid;
+    gap: 8px;
+    justify-items: start;
+
+    :global(.react-datepicker) {
+      width: 320px;
+      max-width: 100%;
+    }
+
+    :global(.react-datepicker__header) {
+      background: $accent-soft;
+      border-bottom: 1px solid rgba($accent, 0.2);
+    }
+
+    :global(.react-datepicker__current-month) {
+      font-weight: 700;
+    }
+
+    :global(.react-datepicker__day) {
+      width: 32px;
+      height: 32px;
+      line-height: 32px;
+      border-radius: 8px;
+      transition:
+        background 0.15s ease,
+        color 0.15s ease;
+    }
+
+    :global(.react-datepicker__day--selected) {
+      background: rgba($accent, 0.8);
+      color: #fff;
+    }
+
+    :global(
+      .react-datepicker__day:not(.react-datepicker__day--selected):hover
+    ) {
+      background: rgba($accent, 0.08);
+    }
+  }
+
+  &__checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 650;
+    color: rgba($accent, 0.85);
+
+    input {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  &__timeField {
+    display: grid;
+    gap: 12px;
+  }
+
+  &__timeRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  &__timeSelects {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  &__select {
+    border: 1px solid rgba(#0b0d1a, 0.12);
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-size: 14px;
+    background: rgba(#fff, 0.9);
+
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease,
+      background 0.15s ease;
+
+    &:focus {
+      outline: none;
+      background: #fff;
+      border-color: rgba(43, 92, 255, 0.35);
+      box-shadow: 0 0 0 3px rgba(43, 92, 255, 0.14);
+    }
+  }
+}

@@ -141,23 +141,352 @@ const machines = [
     storage_gb: 1000,
     location: "Lab F",
     tags: ["win11", "builds"]
+  },
+  {
+    name: "Comet-13",
+    type: "Laptop",
+    os: "Windows 11 Pro 23H2",
+    cpu: "Intel Core i7-1360P",
+    ram_gb: 16,
+    gpu: "Intel Iris Xe",
+    storage_gb: 512,
+    location: "Lab A",
+    tags: ["mobile", "win11"]
+  },
+  {
+    name: "Lyra-14",
+    type: "Desktop",
+    os: "Ubuntu 22.04 LTS",
+    cpu: "AMD Ryzen 7 7800X3D",
+    ram_gb: 64,
+    gpu: "NVIDIA RTX 4070 Ti",
+    storage_gb: 2000,
+    location: "Lab A",
+    tags: ["linux", "cuda", "perf"]
+  },
+  {
+    name: "Iris-15",
+    type: "Device",
+    os: "Android 13",
+    cpu: "Qualcomm Snapdragon",
+    ram_gb: 6,
+    gpu: "Adreno",
+    storage_gb: 128,
+    location: "Lab B",
+    tags: ["android", "mobile", "smoke"]
+  },
+  {
+    name: "Sable-16",
+    type: "Desktop",
+    os: "Windows 10 22H2",
+    cpu: "Intel Core i5-12600K",
+    ram_gb: 32,
+    gpu: "NVIDIA RTX 3060 Ti",
+    storage_gb: 1000,
+    location: "Lab B",
+    tags: ["win10", "regression"]
+  },
+  {
+    name: "Astra-17",
+    type: "Server",
+    os: "Ubuntu 22.04 LTS",
+    cpu: "AMD EPYC 7513",
+    ram_gb: 256,
+    gpu: "NVIDIA A40",
+    storage_gb: 16000,
+    location: "Lab C",
+    tags: ["server", "linux", "gpu"]
+  },
+  {
+    name: "Cobalt-18",
+    type: "Laptop",
+    os: "Ubuntu 22.04 LTS",
+    cpu: "AMD Ryzen 7 7840U",
+    ram_gb: 32,
+    gpu: "Radeon 780M",
+    storage_gb: 1000,
+    location: "Lab C",
+    tags: ["linux", "mobile"]
+  },
+  {
+    name: "Mistral-19",
+    type: "Desktop",
+    os: "Windows 11 Pro 23H2",
+    cpu: "Intel Core i9-14900K",
+    ram_gb: 64,
+    gpu: "NVIDIA RTX 4080 Super",
+    storage_gb: 4000,
+    location: "Lab D",
+    tags: ["win11", "graphics", "perf"]
+  },
+  {
+    name: "Echo-20",
+    type: "Device",
+    os: "iOS 16",
+    cpu: "Apple A15",
+    ram_gb: 6,
+    gpu: "Apple GPU",
+    storage_gb: 128,
+    location: "Lab D",
+    tags: ["ios", "mobile"]
+  },
+  {
+    name: "Nova-21",
+    type: "Desktop",
+    os: "Ubuntu 20.04 LTS",
+    cpu: "Intel Core i7-12700",
+    ram_gb: 32,
+    gpu: "NVIDIA RTX 3060",
+    storage_gb: 1000,
+    location: "Lab E",
+    tags: ["linux", "ci"]
+  },
+  {
+    name: "Vortex-22",
+    type: "Server",
+    os: "Ubuntu 22.04 LTS",
+    cpu: "Dual Xeon Gold",
+    ram_gb: 384,
+    gpu: "NVIDIA L40S",
+    storage_gb: 20000,
+    location: "Lab E",
+    tags: ["server", "linux", "ai"]
+  },
+  {
+    name: "Pioneer-23",
+    type: "Desktop",
+    os: "Windows 11 Pro 23H2",
+    cpu: "AMD Ryzen 5 7600X",
+    ram_gb: 16,
+    gpu: "NVIDIA RTX 3050",
+    storage_gb: 1000,
+    location: "Lab F",
+    tags: ["win11", "smoke"]
+  },
+  {
+    name: "Solar-24",
+    type: "Laptop",
+    os: "macOS Ventura",
+    cpu: "Apple M1 Pro",
+    ram_gb: 16,
+    gpu: "Apple GPU",
+    storage_gb: 512,
+    location: "Lab F",
+    tags: ["mac", "ios", "mobile"]
+  },
+  {
+    name: "Raven-25",
+    type: "Desktop",
+    os: "Ubuntu 22.04 LTS",
+    cpu: "Intel Core i5-12400F",
+    ram_gb: 16,
+    gpu: "NVIDIA GTX 1660 Super",
+    storage_gb: 512,
+    location: "Lab A",
+    tags: ["linux", "qa"]
+  },
+  {
+    name: "Titan-26",
+    type: "Server",
+    os: "Ubuntu 20.04 LTS",
+    cpu: "AMD EPYC 7543",
+    ram_gb: 512,
+    gpu: "NVIDIA A100",
+    storage_gb: 24000,
+    location: "Lab B",
+    tags: ["server", "linux", "ml"]
+  },
+  {
+    name: "Glint-27",
+    type: "Device",
+    os: "Android 12",
+    cpu: "MediaTek Dimensity",
+    ram_gb: 4,
+    gpu: "Mali",
+    storage_gb: 64,
+    location: "Lab B",
+    tags: ["android", "low-end"]
+  },
+  {
+    name: "Quartz-28",
+    type: "Desktop",
+    os: "Windows 11 Pro 23H2",
+    cpu: "Intel Core i7-13700",
+    ram_gb: 64,
+    gpu: "NVIDIA RTX 4070",
+    storage_gb: 2000,
+    location: "Lab C",
+    tags: ["win11", "graphics"]
+  },
+  {
+    name: "Nimbus-29",
+    type: "Laptop",
+    os: "Windows 10 22H2",
+    cpu: "Intel Core i5-1135G7",
+    ram_gb: 8,
+    gpu: "Intel Iris Xe",
+    storage_gb: 256,
+    location: "Lab C",
+    tags: ["win10", "legacy"]
+  },
+  {
+    name: "Orchid-30",
+    type: "Desktop",
+    os: "Ubuntu 22.04 LTS",
+    cpu: "AMD Ryzen 9 7900",
+    ram_gb: 64,
+    gpu: "NVIDIA RTX 4090",
+    storage_gb: 4000,
+    location: "Lab D",
+    tags: ["linux", "cuda", "ai"]
+  },
+  {
+    name: "Kestrel-31",
+    type: "Device",
+    os: "iOS 17",
+    cpu: "Apple A17",
+    ram_gb: 8,
+    gpu: "Apple GPU",
+    storage_gb: 256,
+    location: "Lab D",
+    tags: ["ios", "mobile", "smoke"]
+  },
+  {
+    name: "Sierra-32",
+    type: "Server",
+    os: "Ubuntu 22.04 LTS",
+    cpu: "Intel Xeon Silver",
+    ram_gb: 192,
+    gpu: "NVIDIA T4",
+    storage_gb: 12000,
+    location: "Lab E",
+    tags: ["server", "linux", "ci"]
+  },
+  {
+    name: "Lumen-33",
+    type: "Desktop",
+    os: "Windows 11 Pro 23H2",
+    cpu: "AMD Ryzen 7 7700",
+    ram_gb: 32,
+    gpu: "NVIDIA RTX 4060 Ti",
+    storage_gb: 1000,
+    location: "Lab E",
+    tags: ["win11", "qa"]
+  },
+  {
+    name: "Warden-34",
+    type: "Laptop",
+    os: "Ubuntu 20.04 LTS",
+    cpu: "Intel Core i7-1185G7",
+    ram_gb: 16,
+    gpu: "Intel Iris Xe",
+    storage_gb: 512,
+    location: "Lab F",
+    tags: ["linux", "mobile", "ci"]
+  },
+  {
+    name: "Fable-35",
+    type: "Desktop",
+    os: "Windows 11 Pro 23H2",
+    cpu: "Intel Core i5-14400",
+    ram_gb: 16,
+    gpu: "NVIDIA RTX 3060",
+    storage_gb: 1000,
+    location: "Lab F",
+    tags: ["win11", "smoke"]
+  },
+  {
+    name: "Aria-36",
+    type: "Device",
+    os: "Android 14",
+    cpu: "Qualcomm Snapdragon",
+    ram_gb: 12,
+    gpu: "Adreno",
+    storage_gb: 512,
+    location: "Lab A",
+    tags: ["android", "premium"]
+  },
+  {
+    name: "Basilisk-37",
+    type: "Server",
+    os: "Ubuntu 22.04 LTS",
+    cpu: "AMD EPYC 9354",
+    ram_gb: 768,
+    gpu: "NVIDIA H100",
+    storage_gb: 48000,
+    location: "Lab B",
+    tags: ["server", "linux", "ai", "gpu"]
+  },
+  {
+    name: "Cinder-38",
+    type: "Desktop",
+    os: "Ubuntu 22.04 LTS",
+    cpu: "Intel Core i9-12900K",
+    ram_gb: 64,
+    gpu: "NVIDIA RTX 3080",
+    storage_gb: 2000,
+    location: "Lab C",
+    tags: ["linux", "builds"]
+  },
+  {
+    name: "Delta-39",
+    type: "Laptop",
+    os: "Windows 11 Pro 23H2",
+    cpu: "AMD Ryzen 5 7640U",
+    ram_gb: 16,
+    gpu: "Radeon 760M",
+    storage_gb: 512,
+    location: "Lab D",
+    tags: ["mobile", "win11"]
+  },
+  {
+    name: "Eon-40",
+    type: "Device",
+    os: "iOS 15",
+    cpu: "Apple A14",
+    ram_gb: 4,
+    gpu: "Apple GPU",
+    storage_gb: 64,
+    location: "Lab E",
+    tags: ["ios", "legacy"]
+  },
+  {
+    name: "Forge-41",
+    type: "Desktop",
+    os: "Windows 10 22H2",
+    cpu: "Intel Core i7-10700",
+    ram_gb: 16,
+    gpu: "NVIDIA GTX 1070",
+    storage_gb: 512,
+    location: "Lab E",
+    tags: ["win10", "legacy"]
+  },
+  {
+    name: "Gale-42",
+    type: "Server",
+    os: "Ubuntu 20.04 LTS",
+    cpu: "Intel Xeon Gold",
+    ram_gb: 256,
+    gpu: "NVIDIA A2",
+    storage_gb: 10000,
+    location: "Lab F",
+    tags: ["server", "linux", "ci"]
   }
 ];
 
 try {
-  const { rows } = await pool.query("SELECT COUNT(*)::int AS count FROM machines");
-  if (rows[0].count > 0) {
-    console.log("Machines already seeded");
-  } else {
-    for (const m of machines) {
-      await pool.query(
-        `INSERT INTO machines (name, type, os, cpu, ram_gb, gpu, storage_gb, location, tags)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
-        [m.name, m.type, m.os, m.cpu, m.ram_gb, m.gpu, m.storage_gb, m.location, m.tags]
-      );
-    }
-    console.log("Seeded machines");
+  let inserted = 0;
+  for (const m of machines) {
+    const result = await pool.query(
+      `INSERT INTO machines (name, type, os, cpu, ram_gb, gpu, storage_gb, location, tags)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+       ON CONFLICT (name) DO NOTHING
+       RETURNING id`,
+      [m.name, m.type, m.os, m.cpu, m.ram_gb, m.gpu, m.storage_gb, m.location, m.tags]
+    );
+    if (result.rowCount) inserted += 1;
   }
+  console.log(`Seeded machines: ${inserted} inserted, ${machines.length - inserted} skipped`);
 } finally {
   await pool.end();
 }

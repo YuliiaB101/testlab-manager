@@ -1,0 +1,32 @@
+@use "../../styles/variables" as *;
+
+.statusBadge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: 700;
+  min-width: 100px;
+  text-align: center;
+
+  &--green {
+    background: $success-soft;
+    color: $success;
+  }
+
+  &--red {
+    background: $error-soft;
+    color: $error;
+  }
+
+  &--grey {
+    background: $grey-soft;
+    color: $grey;
+  }
+
+  &--yellow {
+    background: $warning-soft;
+    color: $warning;
+  }
+}

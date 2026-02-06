@@ -192,8 +192,8 @@ app.post("/api/reservations/:id/complete", requireAuth, async (req: AuthRequest,
     await client.query("UPDATE reservations SET status='completed' WHERE id=$1", [reservationId]);
     await client.query("UPDATE machines SET status='available' WHERE id=$1", [reservation.machine_id]);
     await client.query(
-      "INSERT INTO notifications (user_id, title, body) VALUES ($1,$2,$3)",
-      [req.userId, "Job completed", `Session '${reservation.session_name}' finished on ${reservation.end_at}`]
+      "INSERT INTO notifications (user_id, title, body, status) VALUES ($1,$2,$3,$4)",
+      [req.userId, "Job completed", `Session '${reservation.session_name}' finished on ${reservation.end_at}`, "success"]
     );
     await client.query("COMMIT");
 
