@@ -84,6 +84,7 @@
 
     &__reserve {
       margin-top: 14px;
+      margin-right: 14px;
 
       border: 1px solid rgba(#0b0d1a, 0.14);
       background: #0b0d1a;
@@ -102,25 +103,39 @@
         transform 0.06s ease,
         box-shadow 0.15s ease;
 
-      :hover {
+      &:hover {
         filter: brightness(1.04);
         box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
       }
 
-      :active {
+      &:active {
         transform: translateY(1px);
       }
 
-      :focus-visible {
+      &:focus-visible {
         outline: none;
-        box-shadow: 0 0 0 3px rgba(43, 92, 255, 0.16);
+        box-shadow: 0 0 0 3px rgba($accent, 0.16);
       }
 
-      :disabled {
+      &:disabled {
         background: rgba(#0b0d1a, 0.35);
         border-color: rgba(#0b0d1a, 0.1);
         cursor: not-allowed;
         box-shadow: none;
+      }
+    }
+
+    &__admin {
+      border-color: rgba($accent, 0.35);
+      background: rgba($accent, 0.85);
+
+      &:hover {
+        filter: brightness(1.05);
+        box-shadow: 0 8px 18px rgba(43, 92, 255, 0.24);
+      }
+
+      &:focus-visible {
+        box-shadow: 0 0 0 3px rgba($accent, 0.28);
       }
     }
   }
@@ -220,6 +235,75 @@
 
     &__loading {
       padding: 18px;
+    }
+  }
+
+  &__confirmOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(9, 12, 28, 0.55);
+    backdrop-filter: blur(4px);
+    display: grid;
+    place-items: center;
+    z-index: 1600;
+  }
+
+  &__confirmModal {
+    width: min(520px, 92vw);
+    background: #fff;
+    border: 1px solid rgba(#0b0d1a, 0.12);
+    border-radius: 16px;
+    padding: 18px 20px;
+    box-shadow: 0 20px 60px rgba(12, 15, 40, 0.25);
+    display: grid;
+    gap: 12px;
+  }
+
+  &__confirmTitle {
+    font-size: 16px;
+    font-weight: 750;
+  }
+
+  &__confirmText {
+    font-size: 14px;
+    color: rgba(#0b0d1a, 0.65);
+    line-height: 1.4;
+  }
+
+  &__confirmActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  &__confirmPrimary {
+    border: 1px solid rgba($accent, 0.4);
+    background: $accent;
+    color: #fff;
+    padding: 10px 14px;
+    height: 40px;
+    border-radius: 12px;
+    font-weight: 650;
+    cursor: pointer;
+
+    &:hover {
+      filter: brightness(1.05);
+      box-shadow: 0 8px 18px rgba(43, 92, 255, 0.24);
+    }
+  }
+
+  &__confirmSecondary {
+    border: 1px solid rgba(#0b0d1a, 0.14);
+    background: #fff;
+    color: rgba(#0b0d1a, 0.85);
+    padding: 10px 14px;
+    height: 40px;
+    border-radius: 12px;
+    font-weight: 650;
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(#0b0d1a, 0.03);
     }
   }
 

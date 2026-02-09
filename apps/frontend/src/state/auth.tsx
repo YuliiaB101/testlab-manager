@@ -68,3 +68,8 @@ export const useAuth = () => {
   if (!ctx) throw new Error("AuthContext missing");
   return ctx;
 };
+
+export const useIsAdmin = () => {
+  const { user } = useAuth();
+  return user?.role === "admin";
+};

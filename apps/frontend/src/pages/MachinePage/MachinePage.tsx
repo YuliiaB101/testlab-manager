@@ -1,8 +1,8 @@
 ﻿import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { apiMachine, apiCreateReservation, apiReservations, apiCompleteReservation, apiNotifications } from "../../services/api";
+import { apiMachine, apiCreateReservation, apiReservations, apiCompleteReservation, apiNotifications, apiLockMachine, apiUnlockMachine, apiForceLockMachine } from "../../services/api";
 import { Machine, Reservation } from "../../types";
-import { useAuth } from "../../state/auth";
+import { useIsAdmin, useAuth } from "../../state/auth";
 import { useNotifications } from "../../state/notifications";
 import BookingWizard, { BookingPayload } from "../../components/BookingWizard/BookingWizard";
 import styles from "./MachinePage.module.scss";
@@ -11,10 +11,12 @@ import StatusBadge from "../../components/StatusBadge/StatusBadge";
 export default function MachinePage() {
   const { id } = useParams();
   const { token } = useAuth();
+  const isAdmin = useIsAdmin();
   const { setNotifications, pushToast } = useNotifications();
   const [machine, setMachine] = useState<Machine | null>(null);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [showModal, setShowModal] = useState(false);
+  const [showForceLockConfirm, setShowForceLockConfirm] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const loadMachine = async () => {
@@ -41,6 +43,34 @@ export default function MachinePage() {
     await loadMachine();
     await loadReservations();
     setShowModal(false);
+  };
+
+  const handleLock = async () => {
+    if (!token || !machine) return;
+    if (machine.status === "locked") {
+      await apiUnlockMachine(token, machine.id);
+    } else {
+      try {
+        await apiLockMachine(token, machine.id);
+      } catch (error) {
+        if (error instanceof Error && error.message === "Machine is reserved") {
+          setShowForceLockConfirm(true);
+          return;
+        }
+        throw error;
+      }
+    }
+    await loadMachine();
+    await loadReservations();
+    setShowModal(false);
+  };
+
+  const handleForceLock = async () => {
+    if (!token || !machine) return;
+    await apiForceLockMachine(token, machine.id);
+    await loadMachine();
+    await loadReservations();
+    setShowForceLockConfirm(false);
   };
 
   const handleComplete = async (reservationId: number) => {
@@ -87,8 +117,12 @@ export default function MachinePage() {
             ))}
           </div>
           <button className={styles.machinePage__details__reserve} onClick={() => setShowModal(true)} disabled={machine.status === "reserved"}>
-            {machine.status === "reserved" ? "Machine reserved" : "Reserve this machine"}
+            {machine.status === "reserved" ? "Machine reserved" : "Reserve machine"}
           </button>
+          {isAdmin &&
+            <button className={`${styles.machinePage__details__reserve} ${styles.machinePage__details__admin}`} onClick={handleLock} >
+              {machine.status === "locked" ? "Unlock machine (Admin)" : "Lock machine (Admin)"}
+            </button>}
         </div>
       </section>
 
@@ -107,12 +141,12 @@ export default function MachinePage() {
                   </div>
                 </div>
                 <div className={styles.machinePage__reservations__sessionActions}>
-                  <StatusBadge status={resv.status} />
                   {resv.status === "active" && (
                     <button className={styles.machinePage__reservations__complete} onClick={() => handleComplete(resv.id)}>
                       Complete job
                     </button>
                   )}
+                  <StatusBadge status={resv.status} />
                 </div>
               </div>
             ))}
@@ -126,6 +160,25 @@ export default function MachinePage() {
           onClose={() => setShowModal(false)}
           onConfirm={handleReserve}
         />
+      )}
+
+      {showForceLockConfirm && (
+        <div className={styles.machinePage__confirmOverlay}>
+          <div className={styles.machinePage__confirmModal}>
+            <div className={styles.machinePage__confirmTitle}>Force lock machine?</div>
+            <div className={styles.machinePage__confirmText}>
+              This machine is currently reserved by another user. Locking will cancel their active reservation.
+            </div>
+            <div className={styles.machinePage__confirmActions}>
+              <button className={styles.machinePage__confirmSecondary} onClick={() => setShowForceLockConfirm(false)}>
+                Cancel
+              </button>
+              <button className={styles.machinePage__confirmPrimary} onClick={handleForceLock}>
+                Confirm lock
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

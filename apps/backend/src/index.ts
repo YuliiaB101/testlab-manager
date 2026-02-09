@@ -22,6 +22,14 @@ app.use(
 
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
+const requireAdmin = async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  if (!req.userId) return res.status(401).json({ error: "Missing token" });
+  const result = await pool.query("SELECT role FROM users WHERE id=$1", [req.userId]);
+  if (!result.rowCount) return res.status(401).json({ error: "Invalid user" });
+  if (result.rows[0].role !== "admin") return res.status(403).json({ error: "Admin only" });
+  next();
+};
+
 const registerSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
@@ -38,7 +46,7 @@ app.post("/api/auth/register", async (req, res) => {
 
   const passwordHash = await hashPassword(password);
   const result = await pool.query(
-    "INSERT INTO users (name, email, password_hash) VALUES ($1,$2,$3) RETURNING id, name, email",
+    "INSERT INTO users (name, email, password_hash) VALUES ($1,$2,$3) RETURNING id, name, email, role",
     [name, email, passwordHash]
   );
 
@@ -57,7 +65,7 @@ app.post("/api/auth/login", async (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
   const { email, password } = parsed.data;
-  const result = await pool.query("SELECT id, name, email, password_hash FROM users WHERE email=$1", [email]);
+  const result = await pool.query("SELECT id, name, email, role, password_hash FROM users WHERE email=$1", [email]);
   const user = result.rows[0];
   if (!user) return res.status(401).json({ error: "Invalid credentials" });
 
@@ -65,11 +73,11 @@ app.post("/api/auth/login", async (req, res) => {
   if (!ok) return res.status(401).json({ error: "Invalid credentials" });
 
   const token = signToken(user.id);
-  res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
+  res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
 });
 
 app.get("/api/me", requireAuth, async (req: AuthRequest, res) => {
-  const result = await pool.query("SELECT id, name, email FROM users WHERE id=$1", [req.userId]);
+  const result = await pool.query("SELECT id, name, email, role FROM users WHERE id=$1", [req.userId]);
   res.json({ user: result.rows[0] });
 });
 
@@ -129,7 +137,7 @@ app.post("/api/machines/:id/reservations", requireAuth, async (req: AuthRequest,
       return res.status(409).json({ error: "Machine is reserved" });
     }
 
-    const reservationRes = await client.query(
+    await client.query(
       `INSERT INTO reservations (user_id, machine_id, session_name, start_at, end_at, setup_options, test_plan)
        VALUES ($1,$2,$3,$4,$5,$6,$7)
        RETURNING *`,
@@ -139,10 +147,100 @@ app.post("/api/machines/:id/reservations", requireAuth, async (req: AuthRequest,
     await client.query("UPDATE machines SET status='reserved' WHERE id=$1", [machineId]);
     await client.query("COMMIT");
 
-    res.json({ reservation: reservationRes.rows[0] });
+    res.json({ ok: true });
   } catch (error) {
     await client.query("ROLLBACK");
     res.status(500).json({ error: "Reservation failed" });
+  } finally {
+    client.release();
+  }
+});
+
+app.post("/api/machines/:id/lock", requireAuth, requireAdmin, async (req: AuthRequest, res) => {
+  const machineId = Number(req.params.id);
+  const force = String(req.query.force || "false") === "true";
+
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const machineRes = await client.query(
+      "SELECT id, status FROM machines WHERE id=$1 FOR UPDATE",
+      [machineId]
+    );
+    if (!machineRes.rowCount) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ error: "Machine not found" });
+    }
+    if (machineRes.rows[0].status === "locked") {
+      await client.query("ROLLBACK");
+      return res.status(409).json({ error: "Machine is already locked" });
+    }
+    if (machineRes.rows[0].status === "reserved" && !force) {
+      await client.query("ROLLBACK");
+      return res.status(409).json({ error: "Machine is reserved" });
+    }
+
+    if (force) {
+      await client.query(
+        "UPDATE reservations SET status='cancelled' WHERE machine_id=$1 AND status='active'",
+        [machineId]
+      );
+    }
+
+    await client.query(
+      `INSERT INTO reservations (user_id, machine_id, session_name, start_at, end_at, setup_options, test_plan)
+       VALUES ($1,$2,$3,$4,$5,$6,$7)
+       RETURNING *`,
+      [req.userId, machineId, "Admin maintenance", new Date(), new Date(Date.now() + 24 * 3600 * 1000), { flags: ["admin-reservation"] }, null]
+    );
+
+    await client.query("UPDATE machines SET status='locked' WHERE id=$1", [machineId]);
+    await client.query("COMMIT");
+
+    res.json({ ok: true });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    res.status(500).json({ error: "Locking failed" });
+  } finally {
+    client.release();
+  }
+});
+
+app.post("/api/machines/:id/unlock", requireAuth, requireAdmin, async (req: AuthRequest, res) => {
+  const machineId = Number(req.params.id);
+
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const machineRes = await client.query(
+      "SELECT id, status FROM machines WHERE id=$1 FOR UPDATE",
+      [machineId]
+    );
+    if (!machineRes.rowCount) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ error: "Machine not found" });
+    }
+    const adminRes = await client.query(
+      "SELECT id FROM reservations WHERE machine_id=$1 AND user_id=$2 AND status='active' AND setup_options @> $3::jsonb",
+      [machineId, req.userId, JSON.stringify({ flags: ["admin-reservation"] })]
+    );
+
+    if (machineRes.rows[0].status !== "locked" && !adminRes.rowCount) {
+      await client.query("ROLLBACK");
+      return res.status(409).json({ error: "Machine is not locked" });
+    }
+
+    if (adminRes.rowCount) {
+      await client.query("UPDATE reservations SET status='completed' WHERE id=$1", [adminRes.rows[0].id]);
+    }
+
+    await client.query("UPDATE machines SET status='available' WHERE id=$1", [machineId]);
+    await client.query("COMMIT");
+
+    res.json({ ok: true });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    res.status(500).json({ error: "Unlocking failed" });
   } finally {
     client.release();
   }

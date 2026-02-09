@@ -83,6 +83,30 @@ export const apiCompleteReservation = async (token: string, id: number) => {
   return handle<{ ok: boolean }>(res);
 };
 
+export const apiLockMachine = async (token: string, id: number) => {
+  const res = await fetch(`${API_BASE}/machines/${id}/lock`, {
+    method: "POST",
+    headers: jsonHeaders(token)
+  });
+  return handle<{ ok: boolean }>(res);
+};
+
+export const apiForceLockMachine = async (token: string, id: number) => {
+  const res = await fetch(`${API_BASE}/machines/${id}/lock?force=true`, {
+    method: "POST",
+    headers: jsonHeaders(token)
+  });
+  return handle<{ ok: boolean }>(res);
+};
+
+export const apiUnlockMachine = async (token: string, id: number) => {
+  const res = await fetch(`${API_BASE}/machines/${id}/unlock`, {
+    method: "POST",
+    headers: jsonHeaders(token)
+  });
+  return handle<{ ok: boolean }>(res);
+};
+
 export const apiNotifications = async (token: string) => {
   const res = await fetch(`${API_BASE}/notifications`, {
     headers: jsonHeaders(token)
