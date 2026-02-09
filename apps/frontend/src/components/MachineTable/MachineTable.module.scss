@@ -1,0 +1,66 @@
+@use "../../styles/variables" as *;
+
+.machineTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  border: 1px solid $color-border-strong;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(21, 24, 40, 0.06);
+
+  th,
+  td {
+    padding: 10px 14px;
+    font-size: 14px;
+    text-align: left;
+    border-bottom: 1px solid $color-border-strong;
+    vertical-align: middle;
+  }
+
+  thead {
+    tr {
+      height: 44px;
+    }
+
+    th {
+      background: rgba(#f7f9ff, 0.9);
+      font-weight: 650;
+      color: rgba(#0b0d1a, 0.7);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 12px;
+      border-bottom: 1px solid $color-border-strong;
+    }
+  }
+
+  tbody {
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    td {
+      background: #fff;
+      transition: background 0.15s ease;
+    }
+
+    tr:hover td {
+      background: rgba(#2b5cff, 0.035);
+    }
+
+    td:first-child {
+      font-weight: 650;
+      color: #0b0d1a;
+    }
+  }
+}
+
+@media (max-width: 700px) {
+  .machineTable {
+    th,
+    td {
+      padding: 10px 12px;
+    }
+  }
+}

@@ -2,6 +2,23 @@
 @use "../../styles/variables" as *;
 
 .machineRow {
+  &__selectable {
+    cursor: pointer;
+    outline: none;
+
+    &:hover td {
+      background: rgba(#2b5cff, 0.035) !important;
+    }
+
+    &:focus-visible td {
+      box-shadow: inset 0 0 0 2px rgba(#2b5cff, 0.4);
+    }
+  }
+
+  &__selected td {
+    background: rgba(#2b5cff, 0.08) !important;
+  }
+
   &__titleRow {
     display: flex;
     align-items: center;

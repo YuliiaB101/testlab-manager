@@ -3,9 +3,32 @@ import { Machine } from "../../types";
 import StatusBadge from "../StatusBadge/StatusBadge";
 import styles from "./MachineRow.module.scss";
 
-export default function MachineRow({ machine }: { machine: Machine }) {
+type MachineRowProps = {
+  machine: Machine;
+  selectable?: boolean;
+  selected?: boolean;
+  onSelect?: (id: number) => void;
+};
+
+export default function MachineRow({ machine, selectable, selected, onSelect }: MachineRowProps) {
+  const rowClassName = `${selectable ? styles.machineRow__selectable : ""} ${selected ? styles.machineRow__selected : ""}`.trim();
   return (
-    <tr>
+    <tr
+      className={rowClassName}
+      onClick={selectable ? () => onSelect?.(machine.id) : undefined}
+      role={selectable ? "button" : undefined}
+      tabIndex={selectable ? 0 : undefined}
+      onKeyDown={
+        selectable
+          ? (event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                onSelect?.(machine.id);
+              }
+            }
+          : undefined
+      }
+    >
       <td>
         <div className={styles.machineRow__titleRow}>
           <Link to={`/machines/${machine.id}`} className={styles.machineRow__name}>

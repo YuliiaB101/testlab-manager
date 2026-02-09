@@ -126,6 +126,26 @@ export default function MachinePage() {
         </div>
       </section>
 
+      <section className={styles.machinePage__activity}>
+        <h3>Current activity</h3>
+        {machine.current_activity ? (
+          <div className={styles.machinePage__activity__card}>
+            <div>
+              <div className={styles.machinePage__activity__title}>Tests running</div>
+              <div className={styles.machinePage__activity__meta}>
+                Started {new Date(machine.current_activity.started_at).toLocaleString()}
+              </div>
+              <div className={styles.machinePage__activity__meta}>
+                Tests: {machine.current_activity.tests_count}
+              </div>
+            </div>
+            <StatusBadge status="busy" />
+          </div>
+        ) : (
+          <div className={styles.machinePage__activity__empty}>No active tests.</div>
+        )}
+      </section>
+
       <section className={styles.machinePage__reservations}>
         <h3>My sessions on this machine</h3>
         {reservations.length === 0 ? (

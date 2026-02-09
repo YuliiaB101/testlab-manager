@@ -6,6 +6,14 @@ const toolOptions = ["Docker", "Chrome", "Node.js LTS", "Python 3.12", "CUDA 12"
 const flagOptions = ["Enable debug ports", "Clear temp before start", "Allow remote desktop", "Disable auto-updates"];
 const osPresets = ["Windows 11 23H2", "Windows 10 22H2", "Ubuntu 22.04", "Ubuntu 20.04", "macOS Sonoma"];
 
+enum BookingStep {
+  Duration = "Duration",
+  Session = "Session",
+  Setup = "Setup",
+  Test = "Test",
+  Review = "Review"
+}
+
 export interface BookingPayload {
   durationHours: number;
   sessionName: string;
@@ -22,7 +30,7 @@ export default function BookingWizard({
   onConfirm: (payload: BookingPayload) => Promise<void>;
   machineName: string;
 }) {
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState<BookingStep>(BookingStep.Duration);
   const [durationHours, setDurationHours] = useState(2);
   const [startAt, setStartAt] = useState<Date>(() => new Date());
   const [endAt, setEndAt] = useState<Date>(() => new Date(Date.now() + 2 * 3600 * 1000));
@@ -39,8 +47,8 @@ export default function BookingWizard({
   );
 
   const canNext = useMemo(() => {
-    if (step === 0) return !!startAt && !!endAt && endAt.getTime() > startAt.getTime();
-    if (step === 1) return sessionName.trim().length >= 2;
+    if (step === BookingStep.Duration) return !!startAt && !!endAt && endAt.getTime() > startAt.getTime();
+    if (step === BookingStep.Session) return sessionName.trim().length >= 2;
     return true;
   }, [step, durationHours, sessionName, startAt, endAt]);
 
@@ -68,11 +76,13 @@ export default function BookingWizard({
   };
 
   const handleNext = () => {
-    if (step === 0) {
+    if (step === BookingStep.Duration) {
       const hours = Math.max(1, Math.round((endAt.getTime() - startAt.getTime()) / (1000 * 60 * 60)));
       setDurationHours(hours);
     }
-    setStep((prev) => Math.min(prev + 1, 4));
+    const currentIndex = Object.values(BookingStep).indexOf(step);
+    const nextIndex = Math.min(currentIndex + 1, Object.values(BookingStep).length - 1);
+    setStep(Object.values(BookingStep)[nextIndex]);
   };
 
   return (
@@ -90,19 +100,14 @@ export default function BookingWizard({
 
         <div className={styles.bookingWizard__stepper}>
           {
-            [
-              "Duration",
-              "Session",
-              "Setup",
-              "Test",
-              "Review"
-            ].map((label, index) => {
-              const modifierKey = index < step ? "bookingWizard__step--done" : index === step ? "bookingWizard__step--active" : "";
+            Object.values(BookingStep).map((stepKey, index) => {
+              const currentIndex = Object.values(BookingStep).indexOf(step);
+              const modifierKey = index < currentIndex ? "bookingWizard__step--done" : index === currentIndex ? "bookingWizard__step--active" : "";
               const stepClass = `${styles.bookingWizard__step} ${modifierKey ? styles[modifierKey] : ""}`;
               return (
-                <div key={label} className={stepClass}>
+                <div key={stepKey} className={stepClass}>
                   <span>{index + 1}</span>
-                  {label}
+                  {stepKey}
                 </div>
               );
             })
@@ -110,7 +115,7 @@ export default function BookingWizard({
         </div>
 
         <div className={styles.bookingWizard__content}>
-          {step === 0 && (
+          {step === BookingStep.Duration && (
             <div className={styles.bookingWizard__panel}>
               <h3>How long do you need the machine?</h3>
               <CalendarTimePicker
@@ -129,7 +134,7 @@ export default function BookingWizard({
             </div>
           )}
 
-          {step === 1 && (
+          {step === BookingStep.Session && (
             <div className={styles.bookingWizard__panel}>
               <h3>Name your session</h3>
               <input
@@ -142,7 +147,7 @@ export default function BookingWizard({
             </div>
           )}
 
-          {step === 2 && (
+          {step === BookingStep.Setup && (
             <div className={styles.bookingWizard__panel}>
               <h3>Setup options</h3>
               <label className={styles.bookingWizard__label}>OS preset</label>
@@ -181,7 +186,7 @@ export default function BookingWizard({
             </div>
           )}
 
-          {step === 3 && (
+          {step === BookingStep.Test && (
             <div className={styles.bookingWizard__panel}>
               <h3>Test plan</h3>
               <textarea
@@ -193,7 +198,7 @@ export default function BookingWizard({
             </div>
           )}
 
-          {step === 4 && (
+          {step === BookingStep.Review && (
             <div className={styles.bookingWizard__panel}>
               <h3>Review</h3>
               <div className={styles.bookingWizard__review}>
@@ -215,12 +220,16 @@ export default function BookingWizard({
           <div className={styles.bookingWizard__actions}>
             <button
               className={styles.bookingWizard__secondary}
-              onClick={() => setStep((prev) => Math.max(prev - 1, 0))}
-              disabled={step === 0}
+              onClick={() => {
+                const currentIndex = bookingSteps.indexOf(step);
+                const prevIndex = Math.max(currentIndex - 1, 0);
+                setStep(bookingSteps[prevIndex]);
+              }}
+              disabled={step === BookingStep.Duration}
             >
               Back
             </button>
-            {step < 4 ? (
+            {step !== BookingStep.Review ? (
               <button className={styles.bookingWizard__primary} onClick={handleNext} disabled={!canNext}>
                 Next
               </button>

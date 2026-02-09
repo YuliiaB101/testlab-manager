@@ -1,7 +1,7 @@
 ﻿import { useEffect, useState } from "react";
 import { apiMachines } from "../../services/api";
 import { Machine } from "../../types";
-import MachineRow from "../../components/MachineRow/MachineRow";
+import MachineTable from "../../components/MachineTable/MachineTable";
 import styles from "./HomePage.module.scss";
 
 export default function HomePage() {
@@ -39,23 +39,10 @@ export default function HomePage() {
         {loading ? (
           <div className={styles.homePage__loading}>Loading machines...</div>
         ) : (
-          <table className={styles.homePage__table}>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>CPU</th>
-                <th>RAM</th>
-                <th>GPU</th>
-                <th>Location</th>
-                <th>Availability</th>
-              </tr>
-            </thead>
-            <tbody>
-              {machines.map((m) => (
-                <MachineRow key={m.id} machine={m} />
-              ))}
-            </tbody>
-          </table>
+          <>
+            <h3 className={styles.homePage__resultsInfo}>Total machines found: {machines.length}</h3>
+            <MachineTable machines={machines} />
+          </>
         )}
       </section>
     </div>

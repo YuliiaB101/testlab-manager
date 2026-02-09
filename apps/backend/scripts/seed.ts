@@ -474,6 +474,149 @@ const machines = [
   }
 ];
 
+const tests = [
+  // ─── Smoke ─────────────────────────────────────────────
+  {
+    suite: "Smoke", 
+    name: "Boot & Login Smoke",
+    description: "Verifies that the machine boots correctly and a user can log into the system."
+  },
+  {
+    suite: "Smoke",
+    name: "Main Screen доступен",
+    description: "Checks that the main application screen loads without errors."
+  },
+  {
+    suite: "Smoke",
+    name: "API Health Check",
+    description: "Performs a basic API health request to ensure backend services are reachable."
+  },
+
+  // ─── Core Regression ───────────────────────────────────
+  {
+    suite: "Core Regression",
+    name: "Reservation Creation",
+    description: "Ensures a user can successfully create a new machine reservation."
+  },
+  {
+    suite: "Core Regression",
+    name: "Reservation Overlap Prevention",
+    description: "Validates that overlapping reservations for the same machine are not allowed."
+  },
+  {
+    suite: "Core Regression",
+    name: "Role-based Access Control",
+    description: "Checks that user permissions and roles are enforced correctly."
+  },
+  {
+    suite: "Core Regression",
+    name: "Error Handling Flow",
+    description: "Verifies that user-friendly error messages are shown when an operation fails."
+  },
+
+  // ─── UI ────────────────────────────────────────────────
+  {
+    suite: "UI",
+    name: "Responsive Layout",
+    description: "Ensures the UI adapts correctly to different screen sizes."
+  },
+  {
+    suite: "UI",
+    name: "Table Sorting and Filtering",
+    description: "Validates sorting and filtering behavior in data tables."
+  },
+  {
+    suite: "UI",
+    name: "Form Validation Messages",
+    description: "Checks that inline validation messages appear for invalid form inputs."
+  },
+  {
+    suite: "UI",
+    name: "Keyboard Navigation",
+    description: "Ensures that core UI flows are accessible via keyboard navigation."
+  },
+
+  // ─── Media ─────────────────────────────────────────────
+  {
+    suite: "Media",
+    name: "Audio Device Detection",
+    description: "Verifies that connected audio input and output devices are detected correctly."
+  },
+  {
+    suite: "Media",
+    name: "Video Encode Pipeline",
+    description: "Tests video encoding using a standard codec configuration."
+  },
+  {
+    suite: "Media",
+    name: "Playback Synchronization",
+    description: "Ensures audio and video playback remain synchronized during execution."
+  },
+
+  // ─── Performance ───────────────────────────────────────
+  {
+    suite: "Performance",
+    name: "CPU Benchmark",
+    description: "Measures CPU performance under sustained computational load."
+  },
+  {
+    suite: "Performance",
+    name: "GPU Benchmark",
+    description: "Evaluates GPU rendering and compute capabilities under stress."
+  },
+  {
+    suite: "Performance",
+    name: "Application Startup Time",
+    description: "Measures the time required for the application to fully start."
+  },
+
+  // ─── Scheduling / Resource Management ──────────────────
+  {
+    suite: "Scheduling",
+    name: "Run on Any Free Machine",
+    description: "Ensures tests can be scheduled on any currently available machine."
+  },
+  {
+    suite: "Scheduling",
+    name: "Run on Reserved Machine",
+    description: "Validates that a user can run tests on a machine they have reserved."
+  },
+  {
+    suite: "Scheduling",
+    name: "Queue When Busy",
+    description: "Checks that test runs are queued when no machines are available."
+  },
+
+  // ─── Stability / Long-running ──────────────────────────
+  {
+    suite: "Stability",
+    name: "Long-running Test Execution",
+    description: "Runs a prolonged test to detect memory leaks or performance degradation."
+  },
+  {
+    suite: "Stability",
+    name: "Agent Reconnect",
+    description: "Verifies that the test agent reconnects after a temporary network interruption."
+  },
+
+  // ─── Observability ─────────────────────────────────────
+  {
+    suite: "Observability",
+    name: "Logs Collection",
+    description: "Ensures logs are collected and attached to the test run."
+  },
+  {
+    suite: "Observability",
+    name: "Artifacts Upload",
+    description: "Validates that test artifacts are uploaded and available after execution."
+  },
+  {
+    suite: "Observability",
+    name: "Execution Metrics",
+    description: "Checks that execution duration and status metrics are recorded correctly."
+  }
+]
+
 try {
   let inserted = 0;
   for (const m of machines) {
@@ -487,6 +630,19 @@ try {
     if (result.rowCount) inserted += 1;
   }
   console.log(`Seeded machines: ${inserted} inserted, ${machines.length - inserted} skipped`);
+
+  inserted = 0;
+  for (const t of tests) {
+    const result = await pool.query(
+      `INSERT INTO tests (suite, name, description)
+       VALUES ($1,$2,$3)
+       ON CONFLICT (suite, name) DO NOTHING
+       RETURNING id`,
+      [t.suite, t.name, t.description]
+    );
+    if (result.rowCount) inserted += 1;
+  }
+  console.log(`Seeded tests: ${inserted} inserted, ${tests.length - inserted} skipped`);
 } finally {
   await pool.end();
 }

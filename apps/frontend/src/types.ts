@@ -16,7 +16,8 @@ export interface Machine {
   storage_gb: number;
   location: string;
   tags: string[];
-  status: "available" | "locked" | "offline" | "reserved";
+  status: "available" | "locked" | "offline" | "reserved" | "busy";
+  current_activity?: TestRun | null;
 }
 
 export interface Reservation {
@@ -43,4 +44,22 @@ export interface Notification {
   created_at: string;
   read: boolean;
   status: "info" | "warning" | "error" | "success";
+}
+
+export interface Tests {
+  id: string;
+  suite: string;
+  name: string;
+  description?: string;
+}
+
+export interface TestRun {
+  id: number;
+  machine_id: number;
+  user_id: number | null;
+  status: "running" | "completed" | "cancelled";
+  tests_count: number;
+  test_ids: number[];
+  started_at: string;
+  finished_at: string | null;
 }

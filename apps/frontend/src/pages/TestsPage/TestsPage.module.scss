@@ -1,0 +1,415 @@
+@use "../../styles/variables" as *;
+
+.testsPage {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px 24px;
+
+  display: grid;
+  gap: 14px;
+
+  h1 {
+    font-size: 22px;
+    font-weight: 750;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+
+  h2 {
+    font-size: 16px;
+    font-weight: 750;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    margin: 0;
+    color: $color-muted;
+  }
+
+  /* ───────────────────────── Stepper ───────────────────────── */
+  &__stepper {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+
+    padding: 12px 0;
+  }
+
+  &__step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 10px 12px;
+    border-radius: 12px;
+
+    border: 1px solid rgba(#0b0d1a, 0.1);
+    background: rgba(#0b0d1a, 0.02);
+    color: rgba(#0b0d1a, 0.7);
+
+    font-size: 12px;
+    font-weight: 650;
+
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease;
+
+    span {
+      width: 22px;
+      height: 22px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+
+      border: 1px solid rgba(#0b0d1a, 0.12);
+      background: rgba(#fff, 0.92);
+      color: rgba(#0b0d1a, 0.75);
+
+      font-size: 11px;
+      font-weight: 800;
+    }
+  }
+
+  &__step--active {
+    border-color: rgba($accent, 0.28);
+    background: rgba($accent, 0.06);
+    color: rgba(#0b0d1a, 0.92);
+
+    span {
+      border-color: rgba($accent, 0.32);
+      background: rgba($accent, 0.1);
+      color: $accent;
+    }
+  }
+
+  &__step--done {
+    border-color: rgba($success, 0.22);
+    background: rgba($success, 0.05);
+
+    span {
+      border-color: rgba($success, 0.22);
+      background: rgba($success, 0.08);
+      color: $success;
+    }
+  }
+
+  &__panel {
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+  }
+
+  &__suites {
+    display: grid;
+    gap: 10px;
+  }
+
+  &__suite {
+    border: 1px solid $color-border;
+    border-radius: 14px;
+    background: $surface;
+    box-shadow: $shadow-sm;
+    overflow: hidden;
+  }
+
+  &__suiteHeader {
+    width: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 14px;
+    background: linear-gradient(180deg, #ffffff 0%, #f7f8fc 100%);
+    border: 1px solid rgba(#0b0d1a, 0.10);
+    border-radius: 12px;
+    cursor: pointer;
+
+    transition:
+      background 0.15s ease,
+      box-shadow 0.15s ease;
+
+    &:hover {
+      background: rgba($accent, 0.04);
+    }
+
+    &:focus-visible {
+      outline: none;
+    }
+  }
+
+  &__suiteHeaderOpen {
+    background: rgba(#0b0d1a, 0.02);
+  }
+
+  &__suiteHeaderHasSelected {
+    position: relative;
+    background: rgba($accent, 0.1);
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 10px;
+      bottom: 10px;
+      width: 3px;
+      border-radius: 3px;
+      background: rgba($accent, 0.55);
+    }
+  }
+
+  &__suiteCount {
+    color: rgba(#0b0d1a, 0.55);
+    font-weight: 650;
+    margin-left: 6px;
+    font-size: 12px;
+  }
+
+  &__suiteTitle {
+    font-size: 14px;
+    font-weight: 750;
+    color: #0b0d1a;
+    letter-spacing: -0.01em;
+  }
+
+  &__suiteArrow {
+    transition: transform 0.2s ease;
+    color: rgba(#0b0d1a, 0.65);
+  }
+
+  &__suiteArrowOpen {
+    transform: rotate(180deg);
+  }
+
+  &__caseList {
+    list-style: none;
+    padding: 12px 14px 10px;
+    margin: 0;
+    display: grid;
+    gap: 10px;
+  }
+
+  /* Checkbox row */
+  &__itemLabel {
+    display: grid;
+    grid-template-columns: 18px 1fr;
+    align-items: start;
+    gap: 10px;
+
+    font-size: 14px;
+    color: #0b0d1a;
+
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      margin-top: 2px;
+      accent-color: $accent;
+      cursor: pointer;
+    }
+  }
+
+  &__itemText {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  &__itemName {
+    font-weight: 650;
+    color: rgba(#0b0d1a, 0.9);
+    line-height: 1.25;
+  }
+
+  &__itemDesc {
+    font-size: 12px;
+    color: rgba(#0b0d1a, 0.55);
+    line-height: 1.35;
+  }
+
+  &__suiteTotal {
+    display: block;
+    padding: 0 14px 12px;
+    font-size: 12px;
+    color: rgba(#0b0d1a, 0.55);
+  }
+
+  /* ───────────────────────── Machine step layout ───────────────────────── */
+  &__form {
+    display: grid;
+    gap: 12px;
+  }
+
+  &__field {
+    display: grid;
+    gap: 10px;
+  }
+
+  /* Load more button should look like our secondary buttons */
+  &__loadMore {
+    width: 200px;
+    height: 40px;
+    padding: 0 14px;
+    border-radius: 12px;
+    justify-self: center;
+
+    border: 1px solid $color-border;
+    background: $surface-2;
+    color: $color-text;
+
+    font-weight: 650;
+    cursor: pointer;
+
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease,
+      box-shadow 0.15s ease,
+      transform 0.06s ease;
+
+    &:hover {
+      border-color: rgba($accent, 0.28);
+      background: rgba($accent, 0.06);
+      box-shadow: 0 10px 22px rgba(15, 23, 42, 0.1);
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba($accent, 0.14);
+    }
+  }
+
+  /* ───────────────────────── Commit step (your label+select) ───────────────────────── */
+  label {
+    display: grid;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 650;
+    color: rgba(#0b0d1a, 0.75);
+  }
+
+  select {
+    border: 1px solid $color-border;
+    border-radius: 12px;
+    padding: 10px 12px;
+    background: $surface;
+    color: rgba(#0b0d1a, 0.85);
+
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+
+    &:focus {
+      outline: none;
+      border-color: rgba($accent, 0.35);
+      box-shadow: 0 0 0 3px rgba($accent, 0.14);
+    }
+  }
+
+  &__footer {
+    position: sticky;
+    bottom: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 0;
+
+    backdrop-filter: blur(10px);
+  }
+
+  &__footer__actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  &__footer__primary,
+  &__footer__secondary {
+    min-width: 160px;
+    height: 40px;
+    padding: 0 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(#0b0d1a, 0.24);
+
+    font-weight: 650;
+    cursor: pointer;
+
+    transition:
+      filter 0.15s ease,
+      transform 0.06s ease,
+      box-shadow 0.15s ease,
+      background 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  &__footer__primary {
+    background: #0b0d1a;
+    color: #fff;
+
+    &:hover {
+      filter: brightness(1.04);
+      box-shadow: 0 10px 22px rgba(15, 23, 42, 0.14);
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba($accent, 0.16);
+    }
+  }
+
+  &__footer__secondary {
+    background: $surface;
+    color: rgba(#0b0d1a, 0.85);
+
+    &:hover {
+      background: rgba(#0b0d1a, 0.01);
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba($accent, 0.14);
+    }
+  }
+
+  &__footer__primary:disabled,
+  &__footer__secondary:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+    filter: none;
+  }
+
+  @media (max-width: 860px) {
+    padding: 16px 16px;
+
+    &__stepper {
+      grid-template-columns: 1fr;
+    }
+
+    &__footer {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    &__footer__actions {
+      justify-content: flex-end;
+    }
+  }
+}

@@ -50,6 +50,15 @@ export const apiMachine = async (id: number) => {
   return handle<{ machine: Machine }>(res);
 };
 
+export const apiRunTests = async (token: string, payload: { machineId: number; testIds: number[] }) => {
+  const res = await fetch(`${API_BASE}/tests/run`, {
+    method: "POST",
+    headers: jsonHeaders(token),
+    body: JSON.stringify(payload)
+  });
+  return handle<{ run: { id: number } }>(res);
+};
+
 export const apiCreateReservation = async (
   token: string,
   machineId: number,
@@ -112,4 +121,21 @@ export const apiNotifications = async (token: string) => {
     headers: jsonHeaders(token)
   });
   return handle<{ notifications: Notification[] }>(res);
+};
+
+export const apiCreateNotification = async (
+  token: string,
+  payload: { title: string; body: string; status?: Notification["status"] }
+) => {
+  const res = await fetch(`${API_BASE}/notifications`, {
+    method: "POST",
+    headers: jsonHeaders(token),
+    body: JSON.stringify(payload)
+  });
+  return handle<{ notification: Notification }>(res);
+};
+
+export const apiTests = async () => {
+  const res = await fetch(`${API_BASE}/tests`);
+  return handle<{ tests: { id: number; suite: string; name: string; description?: string }[] }>(res);
 };

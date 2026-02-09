@@ -98,7 +98,11 @@ app.get("/api/machines/:id", async (req, res) => {
   const id = Number(req.params.id);
   const result = await pool.query("SELECT * FROM machines WHERE id=$1", [id]);
   if (!result.rowCount) return res.status(404).json({ error: "Not found" });
-  res.json({ machine: result.rows[0] });
+  const activity = await pool.query(
+    "SELECT id, machine_id, user_id, status, tests_count, test_ids, started_at, finished_at FROM test_runs WHERE machine_id=$1 AND status='running' ORDER BY started_at DESC LIMIT 1",
+    [id]
+  );
+  res.json({ machine: { ...result.rows[0], current_activity: activity.rows[0] || null } });
 });
 
 const reservationSchema = z.object({
@@ -310,6 +314,70 @@ app.get("/api/notifications", requireAuth, async (req: AuthRequest, res) => {
     [req.userId]
   );
   res.json({ notifications: result.rows });
+});
+
+const notificationSchema = z.object({
+  title: z.string().min(1),
+  body: z.string().min(1),
+  status: z.enum(["info", "warning", "error", "success"]).optional()
+});
+
+app.post("/api/notifications", requireAuth, async (req: AuthRequest, res) => {
+  const parsed = notificationSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const { title, body, status } = parsed.data;
+  const result = await pool.query(
+    "INSERT INTO notifications (user_id, title, body, status) VALUES ($1,$2,$3,$4) RETURNING *",
+    [req.userId, title, body, status || "info"]
+  );
+  res.json({ notification: result.rows[0] });
+});
+
+app.get("/api/tests", async (req, res) => {
+  const result = await pool.query("SELECT * FROM tests ORDER BY suite DESC");
+  res.json({ tests: result.rows });
+});
+
+const testRunSchema = z.object({
+  machineId: z.number().int().positive(),
+  testIds: z.array(z.number().int()).default([])
+});
+
+app.post("/api/tests/run", requireAuth, async (req: AuthRequest, res) => {
+  const parsed = testRunSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const { machineId, testIds } = parsed.data;
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const machineRes = await client.query(
+      "SELECT id, status FROM machines WHERE id=$1 FOR UPDATE",
+      [machineId]
+    );
+    if (!machineRes.rowCount) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ error: "Machine not found" });
+    }
+    if (machineRes.rows[0].status !== "available") {
+      await client.query("ROLLBACK");
+      return res.status(409).json({ error: "Machine is not available" });
+    }
+
+    await client.query("UPDATE machines SET status='busy' WHERE id=$1", [machineId]);
+    const runRes = await client.query(
+      "INSERT INTO test_runs (machine_id, user_id, status, tests_count, test_ids) VALUES ($1,$2,'running',$3,$4) RETURNING *",
+      [machineId, req.userId, testIds.length, testIds]
+    );
+    await client.query("COMMIT");
+    res.json({ run: runRes.rows[0] });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    res.status(500).json({ error: "Test run failed" });
+  } finally {
+    client.release();
+  }
 });
 
 app.listen(port, () => {
