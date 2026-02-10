@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { apiCreateNotification, apiMachines, apiRunTests, apiTests } from "../../services/api";
-import { Machine } from "../../types";
+import { apiCreateNotification, apiMachines, apiReservations, apiRunTests, apiTests } from "../../services/api";
+import { Machine, Reservation } from "../../types";
 import styles from "./TestsPage.module.scss";
 import MachineTable from "../../components/MachineTable/MachineTable";
 import { useAuth } from "../../state/auth";
 import { useNotifications } from "../../state/notifications";
+import { useNavigate } from "react-router";
 
 type TestItem = {
     id: number;
@@ -24,19 +25,23 @@ const TestsPage: React.FC = () => {
     const [selectedTests, setSelectedTests] = useState<Set<string>>(new Set());
     const [openSuites, setOpenSuites] = useState<Set<string>>(new Set());
     const [machines, setMachines] = useState<Machine[]>([]);
+    const [availableMachines, setAvailableMachines] = useState<Machine[]>([]);
     const [machineId, setMachineId] = useState<string>("");
     const [config, setConfig] = useState<string>("");
     const [tests, setTests] = useState<TestItem[]>([]);
     const [suites, setSuites] = useState<string[]>([]);
     const [visibleMachineCount, setVisibleMachineCount] = useState(10);
+    const [reservations, setReservations] = useState<Reservation[]>([]);
+    const navigate = useNavigate();
     const { token } = useAuth();
     const { addNotification, pushToast } = useNotifications();
 
     useEffect(() => {
         apiMachines("")
             .then((data) => {
+                setMachines(data.machines);
                 const available = data.machines.filter((m) => m.status === "available");
-                setMachines(available);
+                setAvailableMachines(available);
                 setVisibleMachineCount(5);
                 if (available.length) {
                     setMachineId(String(available[0].id));
@@ -45,6 +50,7 @@ const TestsPage: React.FC = () => {
             })
             .catch(() => {
                 setMachines([]);
+                setAvailableMachines([]);
             });
 
         apiTests()
@@ -61,15 +67,34 @@ const TestsPage: React.FC = () => {
             });
     }, []);
 
+    useEffect(() => {
+        if (!token) return;
+        apiReservations(token)
+            .then((data) => {
+                const active = data.reservations.filter((r) => r.status === "active");
+                setReservations(active);
+            })
+            .catch(() => {
+                setReservations([]);
+            });
+    }, [token]);
+
     const currentMachine = useMemo(
-        () => machines.find((m) => String(m.id) === machineId) ?? machines[0],
-        [machines, machineId]
+        () => availableMachines.find((m) => String(m.id) === machineId) ?? availableMachines[0],
+        [availableMachines, machineId]
     );
 
     const visibleMachines = useMemo(
-        () => machines.slice(0, visibleMachineCount),
-        [machines, visibleMachineCount]
+        () => availableMachines.slice(0, visibleMachineCount),
+        [availableMachines, visibleMachineCount]
     );
+
+    const reservedMachines = useMemo(
+        () => machines.filter((m) => reservations.some((r) => r.machine_id === m.id)),
+        [machines, reservations]
+    );
+
+    console.log("reservedMachines:", reservedMachines);
 
     const toggleTest = (testId: string) => {
         setSelectedTests((prev) => {
@@ -97,6 +122,9 @@ const TestsPage: React.FC = () => {
         }));
     }, [suites, tests]);
 
+    const totalSelectedCount = useMemo(() => selectedTests.size, [selectedTests]);
+    const totalAvailableCount = useMemo(() => tests.length, [tests.length]);
+
     const onRun = async () => {
         const tests = Array.from(selectedTests);
         const machine = currentMachine?.name ?? "";
@@ -107,32 +135,23 @@ const TestsPage: React.FC = () => {
             setMachines((prev) =>
                 prev.map((m) => (String(m.id) === machineId ? { ...m, status: "busy" } : m))
             );
+            setAvailableMachines((prev) => prev.filter((m) => String(m.id) !== machineId));
         }
         const message = `Queued ${tests.length} test(s)\nMachine: ${machine}\nConfig: ${chosenConfig}`;
+
         if (token) {
-            try {
-                const result = await apiCreateNotification(token, {
-                    title: "Tests queued",
-                    body: message,
-                    status: "info"
-                });
-                addNotification(result.notification);
-                pushToast(result.notification);
-            } catch {
-                // fallback to toast only
-                pushToast({
-                    id: Date.now(),
-                    title: "Tests queued",
-                    body: message,
-                    status: "info",
-                    read: false,
-                    created_at: new Date().toISOString()
-                });
-            }
+            const result = await apiCreateNotification(token, {
+                title: "Tests queued",
+                body: message,
+                status: "info"
+            });
+            addNotification(result.notification);
+            pushToast(result.notification);
         }
         alert(
             `Queued ${tests.length} test(s)\nMachine: ${machine}\nConfig: ${chosenConfig}`
         );
+        navigate(`/machines/${machineId}`);
     };
 
     const onSelectMachine = (id: string) => {
@@ -179,8 +198,8 @@ const TestsPage: React.FC = () => {
 
             {step === Step.Selection && (
                 <div className={styles.testsPage__panel}>
-                    <h2>Choose tests</h2>
-                    <div className={styles.testsPage__suites}>
+                    <h2>Choose tests to run:</h2>
+                    <ol className={styles.testsPage__suites}>
                         {testsBySuite.map((theme) => {
                             const open = openSuites.has(theme.id);
 
@@ -188,13 +207,12 @@ const TestsPage: React.FC = () => {
                             const hasSelected = selectedCount > 0;
 
                             return (
-                                <div key={theme.id} className={styles.testsPage__suite}>
+                                <li key={theme.id}>
                                     <button
                                         type="button"
                                         className={[
-                                            styles.testsPage__suiteHeader,
-                                            open ? styles.testsPage__suiteHeaderOpen : "",
-                                            hasSelected ? styles.testsPage__suiteHeaderHasSelected : "",
+                                            styles.testsPage__suite,
+                                            hasSelected ? styles.testsPage__suiteHasSelected : "",
                                         ].join(" ")}
                                         onClick={() => toggleSuite(theme.id)}
                                     >
@@ -205,7 +223,7 @@ const TestsPage: React.FC = () => {
                                             ▾
                                         </span>
                                     </button>
-                                    
+
                                     {open && (
                                         <>
                                             <ul className={styles.testsPage__caseList}>
@@ -227,21 +245,34 @@ const TestsPage: React.FC = () => {
                                                     </li>
                                                 ))}
                                             </ul>
-                                            <span className={styles.testsPage__suiteTotal}>Total : {selectedCount} / {theme.tests.length}</span>
                                         </>
-
                                     )}
-                                </div>
+                                </li>
                             );
                         })}
+                    </ol>
+                    <div className={styles.testsPage__suiteTotal}>
+                        Total selected: {totalSelectedCount} / {totalAvailableCount}
                     </div>
                 </div>
             )}
 
             {step === Step.Machine && (
                 <div className={styles.testsPage__panel}>
-                    <h2>Target machine</h2>
+                    <h2>Select target machine:</h2>
+                    {reservedMachines.length !== 0 && (
+                        <>
+                            <p>Reserved by you:</p>
+                            <MachineTable
+                                machines={reservedMachines}
+                                selectable
+                                selectedId={machineId}
+                                onSelect={onSelectMachine}
+                            />
+                        </>
+                    )}
                     <div className={styles.testsPage__form}>
+                        <p>Available machines:</p>
                         <div className={styles.testsPage__field}>
                             <MachineTable
                                 machines={visibleMachines}
@@ -249,13 +280,13 @@ const TestsPage: React.FC = () => {
                                 selectedId={machineId}
                                 onSelect={onSelectMachine}
                             />
-                            {visibleMachineCount < machines.length && (
+                            {visibleMachineCount < availableMachines.length && (
                                 <button
                                     type="button"
                                     className={styles.testsPage__loadMore}
-                                    onClick={() => setVisibleMachineCount((prev) => Math.min(prev + 5, machines.length))}
+                                    onClick={() => setVisibleMachineCount((prev) => Math.min(prev + 5, availableMachines.length))}
                                 >
-                                    Load more
+                                    Load more ...
                                 </button>
                             )}
                         </div>
@@ -265,7 +296,7 @@ const TestsPage: React.FC = () => {
 
             {step === Step.Commit && (
                 <div className={styles.testsPage__panel}>
-                    <p>Choose commit to test</p>
+                    <p>Choose commit to test :</p>
                     <label>
                         Commit
                         <select>

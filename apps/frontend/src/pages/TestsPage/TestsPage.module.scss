@@ -25,9 +25,11 @@
   p {
     margin: 0;
     color: $color-muted;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.2;
   }
 
-  /* ───────────────────────── Stepper ───────────────────────── */
   &__stepper {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -49,7 +51,7 @@
     color: rgba(#0b0d1a, 0.7);
 
     font-size: 12px;
-    font-weight: 650;
+    font-weight: 600;
 
     transition:
       background 0.15s ease,
@@ -70,28 +72,28 @@
       font-size: 11px;
       font-weight: 800;
     }
-  }
 
-  &__step--active {
-    border-color: rgba($accent, 0.28);
-    background: rgba($accent, 0.06);
-    color: rgba(#0b0d1a, 0.92);
+    &--active {
+      border-color: rgba($accent, 0.28);
+      background: rgba($accent, 0.06);
+      color: rgba(#0b0d1a, 0.92);
 
-    span {
-      border-color: rgba($accent, 0.32);
-      background: rgba($accent, 0.1);
-      color: $accent;
+      span {
+        border-color: rgba($accent, 0.32);
+        background: rgba($accent, 0.1);
+        color: $accent;
+      }
     }
-  }
 
-  &__step--done {
-    border-color: rgba($success, 0.22);
-    background: rgba($success, 0.05);
-
-    span {
+    &--done {
       border-color: rgba($success, 0.22);
-      background: rgba($success, 0.08);
-      color: $success;
+      background: rgba($success, 0.05);
+
+      span {
+        border-color: rgba($success, 0.22);
+        background: rgba($success, 0.08);
+        color: $success;
+      }
     }
   }
 
@@ -100,104 +102,74 @@
     box-shadow: none;
     padding: 0;
     display: grid;
-    gap: 12px;
+    gap: 16px;
   }
 
   &__suites {
     display: grid;
-    gap: 10px;
+    gap: 16px;
+    margin: 0;
   }
 
   &__suite {
-    border: 1px solid $color-border;
-    border-radius: 14px;
-    background: $surface;
-    box-shadow: $shadow-sm;
-    overflow: hidden;
-  }
-
-  &__suiteHeader {
     width: 100%;
     position: relative;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 12px 14px;
-    background: linear-gradient(180deg, #ffffff 0%, #f7f8fc 100%);
-    border: 1px solid rgba(#0b0d1a, 0.10);
-    border-radius: 12px;
+    background: transparent;
+    border: none;
+    color: $color-muted;
     cursor: pointer;
 
     transition:
       background 0.15s ease,
       box-shadow 0.15s ease;
 
-    &:hover {
-      background: rgba($accent, 0.04);
-    }
-
     &:focus-visible {
       outline: none;
     }
-  }
 
-  &__suiteHeaderOpen {
-    background: rgba(#0b0d1a, 0.02);
-  }
-
-  &__suiteHeaderHasSelected {
-    position: relative;
-    background: rgba($accent, 0.1);
-
-    &::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 10px;
-      bottom: 10px;
-      width: 3px;
-      border-radius: 3px;
-      background: rgba($accent, 0.55);
+    &Count {
+      color: rgba(#0b0d1a, 0.55);
+      font-weight: 600;
+      margin-left: 6px;
+      font-size: 12px;
     }
-  }
 
-  &__suiteCount {
-    color: rgba(#0b0d1a, 0.55);
-    font-weight: 650;
-    margin-left: 6px;
-    font-size: 12px;
-  }
+    &Title {
+      font-size: 16px;
+      font-weight: 500;
+      color: rgba(#0b0d1a, 0.7);
+      letter-spacing: -0.01em;
+    }
 
-  &__suiteTitle {
-    font-size: 14px;
-    font-weight: 750;
-    color: #0b0d1a;
-    letter-spacing: -0.01em;
-  }
+    &HasSelected &Title, &HasSelected &Count {
+      font-weight: 700;
+      color: rgba($accent, 0.8);
+    }
 
-  &__suiteArrow {
-    transition: transform 0.2s ease;
-    color: rgba(#0b0d1a, 0.65);
-  }
+    &Arrow {
+      transition: transform 0.2s ease;
+      color: rgba(#0b0d1a, 0.65);
+    }
 
-  &__suiteArrowOpen {
-    transform: rotate(180deg);
+    &ArrowOpen {
+      transform: rotate(180deg);
+    }
   }
 
   &__caseList {
     list-style: none;
-    padding: 12px 14px 10px;
+    padding: 10px 20px;
     margin: 0;
     display: grid;
     gap: 10px;
   }
 
-  /* Checkbox row */
   &__itemLabel {
     display: grid;
     grid-template-columns: 18px 1fr;
-    align-items: start;
+    align-items: center;
     gap: 10px;
 
     font-size: 14px;
@@ -219,7 +191,7 @@
   }
 
   &__itemName {
-    font-weight: 650;
+    font-weight: 600;
     color: rgba(#0b0d1a, 0.9);
     line-height: 1.25;
   }
@@ -232,12 +204,42 @@
 
   &__suiteTotal {
     display: block;
-    padding: 0 14px 12px;
+    font-size: 16px;
+    color: rgba(#0b0d1a, 0.55);
+  }
+
+  &__reservedList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+  }
+
+  &__reservedItem {
+    background: $surface;
+    border: 1px solid $color-border;
+    border-radius: 12px;
+    padding: 10px 12px;
+    box-shadow: $shadow-sm;
+  }
+
+  &__reservedName {
+    font-weight: 650;
+    color: rgba(#0b0d1a, 0.9);
+  }
+
+  &__reservedMeta {
+    margin-top: 4px;
     font-size: 12px;
     color: rgba(#0b0d1a, 0.55);
   }
 
-  /* ───────────────────────── Machine step layout ───────────────────────── */
+  &__reservedEmpty {
+    font-size: 13px;
+    color: rgba(#0b0d1a, 0.55);
+  }
+
   &__form {
     display: grid;
     gap: 12px;
@@ -248,7 +250,6 @@
     gap: 10px;
   }
 
-  /* Load more button should look like our secondary buttons */
   &__loadMore {
     width: 200px;
     height: 40px;
@@ -285,12 +286,10 @@
     }
   }
 
-  /* ───────────────────────── Commit step (your label+select) ───────────────────────── */
   label {
     display: grid;
     gap: 8px;
     font-size: 13px;
-    font-weight: 650;
     color: rgba(#0b0d1a, 0.75);
   }
 
@@ -322,7 +321,7 @@
     gap: 12px;
     padding: 12px 0;
 
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(4px);
   }
 
   &__footer__actions {
