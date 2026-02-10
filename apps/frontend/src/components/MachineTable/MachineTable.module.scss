@@ -2,12 +2,13 @@
 
 .machineTable {
   width: 100%;
+  table-layout: fixed;
   border-collapse: separate;
   border-spacing: 0;
   background: #fff;
   border: 1px solid $color-border-strong;
   border-radius: 14px;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: 0 6px 18px rgba(21, 24, 40, 0.06);
 
   th,
@@ -32,6 +33,25 @@
       letter-spacing: 0.06em;
       font-size: 12px;
       border-bottom: 1px solid $color-border-strong;
+      padding-left: 30px;
+    }
+
+    th:nth-child(1) {
+      width: 30%;
+    }
+
+    th:nth-child(2),
+    th:nth-child(3),
+    th:nth-child(4) {
+      width: 14%;
+    }
+
+    th:nth-child(5) {
+      width: 16%;
+    }
+
+    th:nth-child(6) {
+      width: 12%;
     }
   }
 
@@ -54,6 +74,14 @@
       color: #0b0d1a;
     }
   }
+}
+
+.machineTable__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  white-space: nowrap;
 }
 
 @media (max-width: 700px) {
