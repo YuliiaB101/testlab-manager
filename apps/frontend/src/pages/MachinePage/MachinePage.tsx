@@ -53,7 +53,7 @@ export default function MachinePage() {
       try {
         await apiLockMachine(token, machine.id);
       } catch (error) {
-        if (error instanceof Error && error.message === "Machine is reserved") {
+        if (error instanceof Error && (error.message === "Machine is reserved" || error.message === "Machine is busy")) {
           setShowForceLockConfirm(true);
           return;
         }
@@ -187,7 +187,7 @@ export default function MachinePage() {
           <div className={styles.machinePage__confirmModal}>
             <div className={styles.machinePage__confirmTitle}>Force lock machine?</div>
             <div className={styles.machinePage__confirmText}>
-              This machine is currently reserved by another user. Locking will cancel their active reservation.
+              This machine is currently reserved or running tests. Locking will cancel active reservations and interrupt running tests.
             </div>
             <div className={styles.machinePage__confirmActions}>
               <button className={styles.machinePage__confirmSecondary} onClick={() => setShowForceLockConfirm(false)}>

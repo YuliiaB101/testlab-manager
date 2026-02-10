@@ -40,6 +40,7 @@ export default function BookingWizard({
   const [flags, setFlags] = useState<string[]>([]);
   const [testPlan, setTestPlan] = useState("");
   const [loading, setLoading] = useState(false);
+  const bookingSteps = Object.values(BookingStep);
 
   const currentDurationHours = useMemo(
     () => Math.max(1, Math.round((endAt.getTime() - startAt.getTime()) / (1000 * 60 * 60))),
@@ -80,9 +81,9 @@ export default function BookingWizard({
       const hours = Math.max(1, Math.round((endAt.getTime() - startAt.getTime()) / (1000 * 60 * 60)));
       setDurationHours(hours);
     }
-    const currentIndex = Object.values(BookingStep).indexOf(step);
-    const nextIndex = Math.min(currentIndex + 1, Object.values(BookingStep).length - 1);
-    setStep(Object.values(BookingStep)[nextIndex]);
+    const currentIndex = bookingSteps.indexOf(step);
+    const nextIndex = Math.min(currentIndex + 1, bookingSteps.length - 1);
+    setStep(bookingSteps[nextIndex]);
   };
 
   return (
@@ -90,7 +91,7 @@ export default function BookingWizard({
       <div className={styles.bookingWizard__modal}>
         <header className={styles.bookingWizard__header}>
           <div>
-            <div className={styles.bookingWizard__title}>Lock {machineName}</div>
+            <div className={styles.bookingWizard__title}>Reserve {machineName}</div>
             <div className={styles.bookingWizard__subtitle}>Configure the session in a few steps.</div>
           </div>
           <button className={styles.bookingWizard__close} onClick={onClose}>
@@ -100,8 +101,8 @@ export default function BookingWizard({
 
         <div className={styles.bookingWizard__stepper}>
           {
-            Object.values(BookingStep).map((stepKey, index) => {
-              const currentIndex = Object.values(BookingStep).indexOf(step);
+            bookingSteps.map((stepKey, index) => {
+              const currentIndex = bookingSteps.indexOf(step);
               const modifierKey = index < currentIndex ? "bookingWizard__step--done" : index === currentIndex ? "bookingWizard__step--active" : "";
               const stepClass = `${styles.bookingWizard__step} ${modifierKey ? styles[modifierKey] : ""}`;
               return (
@@ -235,7 +236,7 @@ export default function BookingWizard({
               </button>
             ) : (
               <button className={styles.bookingWizard__primary} onClick={handleSubmit} disabled={loading}>
-                {loading ? "Locking..." : "Lock machine"}
+                {loading ? "Reserving..." : "Reserve machine"}
               </button>
             )}
           </div>

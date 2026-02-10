@@ -183,12 +183,47 @@ app.post("/api/machines/:id/lock", requireAuth, requireAdmin, async (req: AuthRe
       await client.query("ROLLBACK");
       return res.status(409).json({ error: "Machine is reserved" });
     }
+    if (machineRes.rows[0].status === "busy" && !force) {
+      await client.query("ROLLBACK");
+      return res.status(409).json({ error: "Machine is busy" });
+    }
 
     if (force) {
-      await client.query(
-        "UPDATE reservations SET status='cancelled' WHERE machine_id=$1 AND status='active'",
+      const cancelled = await client.query(
+        "UPDATE reservations SET status='cancelled' WHERE machine_id=$1 AND status='active' RETURNING user_id, session_name",
         [machineId]
       );
+
+      for (const row of cancelled.rows) {
+        if (!row.user_id) continue;
+        await client.query(
+          "INSERT INTO notifications (user_id, title, body, status) VALUES ($1,$2,$3,$4)",
+          [
+            row.user_id,
+            "Reservation cancelled",
+            `Your reservation '${row.session_name}' was cancelled due to admin lock.`,
+            "error"
+          ]
+        );
+      }
+
+      const cancelledRuns = await client.query(
+        "UPDATE test_runs SET status='cancelled', finished_at=NOW() WHERE machine_id=$1 AND status='running' RETURNING user_id",
+        [machineId]
+      );
+
+      for (const row of cancelledRuns.rows) {
+        if (!row.user_id) continue;
+        await client.query(
+          "INSERT INTO notifications (user_id, title, body, status) VALUES ($1,$2,$3,$4)",
+          [
+            row.user_id,
+            "Tests interrupted",
+            "Your tests were interrupted by an admin lock.",
+            "error"
+          ]
+        );
+      }
     }
 
     await client.query(
