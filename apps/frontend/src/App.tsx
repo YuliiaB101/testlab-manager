@@ -7,10 +7,11 @@ import MachinePage from "./pages/MachinePage/MachinePage";
 import NotificationsPage from "./pages/NotificationsPage/NotificationsPage";
 import AuthPage from "./pages/AuthPage/AuthPage";
 import TestsPage from "./pages/TestsPage/TestsPage";
+import AnalyticsPage from "./pages/AnalyticsPage/AnalyticsPage";
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { user, initialized } = useAuth();
-  if (!initialized) return null; // still checking auth
+  if (!initialized) return null;
   if (!user) return <Navigate to="/auth" replace />;
   return children;
 };
@@ -33,6 +34,7 @@ export default function App() {
             <Route path="machines/:id" element={<MachinePage />} />
             <Route path="notifications" element={<NotificationsPage />} />
             <Route path="tests" element={<TestsPage />} />
+            <Route path="analytics" element={<AnalyticsPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

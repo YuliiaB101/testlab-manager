@@ -179,7 +179,7 @@ const TestsPage: React.FC = () => {
 
     return (
         <div className={styles.testsPage}>
-            <h1>Tests</h1>
+            <h2>Tests</h2>
 
             <div className={styles.testsPage__stepper}>
                 {
@@ -198,7 +198,7 @@ const TestsPage: React.FC = () => {
 
             {step === Step.Selection && (
                 <div className={styles.testsPage__panel}>
-                    <h2>Choose tests to run:</h2>
+                    <h3>Choose tests to run:</h3>
                     <ol className={styles.testsPage__suites}>
                         {testsBySuite.map((theme) => {
                             const open = openSuites.has(theme.id);
@@ -259,7 +259,7 @@ const TestsPage: React.FC = () => {
 
             {step === Step.Machine && (
                 <div className={styles.testsPage__panel}>
-                    <h2>Select target machine:</h2>
+                    <h3>Select target machine:</h3>
                     {reservedMachines.length !== 0 && (
                         <>
                             <p>Reserved by you:</p>

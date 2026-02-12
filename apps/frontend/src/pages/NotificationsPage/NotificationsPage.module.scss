@@ -2,12 +2,19 @@
 @use "../../styles/variables" as *;
 
 .notificationsPage {
+  @include page-container;
+
   display: grid;
   gap: 14px;
+
+  h2 {
+    @include page-title;
+  }
 
   &__list {
     display: grid;
     gap: 10px;
+    padding: 12px 0;
   }
 
   &__card {
@@ -29,38 +36,38 @@
     }
 
     &--info {
-      border-left: 3px solid rgba(43, 92, 255, 0.45);
+      border-left: 3px solid rgba(43, 92, 255, 0.75);
       background: linear-gradient(
         to right,
-        rgba(43, 92, 255, 0.04),
-        rgba(#fff, 0.86) 32%
+        rgba(43, 92, 255, 0.16),
+        rgba(#fff, 0.86) 100%
       );
     }
 
     &--warning {
-      border-left: 3px solid rgba(139, 92, 19, 0.55);
+      border-left: 3px solid rgba(164, 118, 43, 0.75);
       background: linear-gradient(
         to right,
-        rgba(139, 92, 19, 0.06),
-        rgba(#fff, 0.86) 32%
+        rgba(164, 118, 43, 0.16),
+        rgba(#fff, 0.86) 100%
       );
     }
 
     &--error {
-      border-left: 3px solid rgba(166, 43, 43, 0.65);
+      border-left: 3px solid rgba(166, 43, 43, 0.75);
       background: linear-gradient(
         to right,
-        rgba(166, 43, 43, 0.1),
-        rgba(#fff, 0.86) 32%
+        rgba(166, 43, 43, 0.16),
+        rgba(#fff, 0.86) 100%
       );
     }
 
     &--success {
-      border-left: 3px solid rgba(12, 107, 46, 0.45);
+      border-left: 3px solid rgba(12, 107, 46, 0.75);
       background: linear-gradient(
         to right,
-        rgba(12, 107, 46, 0.05),
-        rgba(#fff, 0.86) 32%
+        rgba(12, 107, 46, 0.16),
+        rgba(#fff, 0.86) 100%
       );
     }
 
@@ -91,7 +98,7 @@
     border: 1px solid rgba(#0b0d1a, 0.1);
     padding: 14px 16px;
     border-radius: 14px;
-    box-shadow: 0 2px 10px rgba(15, 22, 48, 0.05);
+    box-shadow: 0 2px 10px rgba(15, 22, 48, 0.25);
     color: rgba(#0b0d1a, 0.62);
     font-size: 14px;
   }
