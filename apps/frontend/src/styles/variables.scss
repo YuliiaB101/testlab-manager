@@ -21,16 +21,16 @@ $success: #0c6b2e;
 $success-soft: rgba(12, 107, 46, 0.10);
 
 $error: #c33232;
-$error-soft: #ffe0e0; 
+$error-soft: rgba(195, 50, 50, 0.10);
 
 $warning: #d97706;
-$warning-soft: #fde5ca;
+$warning-soft: rgba(217, 119, 6, 0.10);
 
 $grey: #6b7280;
-$grey-soft: #f3f4f6;
+$grey-soft: rgba(107, 114, 128, 0.10);
 
 $black: #000000;
-$black-soft: #d1d5db;
+$black-soft: rgba(209, 213, 219, 0.40);
 
 $shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
 $shadow-md: 0 6px 18px rgba(15, 23, 42, 0.08);
@@ -50,3 +50,12 @@ $font-14: 14px;
 $font-16: 16px;
 $font-20: 20px;
 $font-28: 28px;
+    
+// CSS variables for chart colors
+:root {
+  --color-available: #{rgba($success, 0.95)};
+  --color-reserved: #{rgba($warning, 0.95)};
+  --color-locked: #{rgba($error, 0.95)};
+  --color-busy: #{rgba($accent, 0.95)};
+  --color-offline: #{rgba($grey, 0.95)};
+}

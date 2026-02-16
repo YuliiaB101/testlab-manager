@@ -1,0 +1,29 @@
+@use "../../styles/variables" as *;
+
+.chartContainer {
+  height: 280px;
+}
+
+.chartContainer :global(.recharts-cartesian-grid-horizontal line) {
+  stroke: rgba(11, 13, 26, 0.08);
+}
+
+.chartContainer :global(.recharts-cartesian-axis-line),
+.chartContainer :global(.recharts-cartesian-axis-tick-line) {
+  stroke: rgba(11, 13, 26, 0.10);
+}
+
+.chartContainer :global(.recharts-text) {
+  fill: rgba(11, 13, 26, 0.65);
+  font-size: 12px;
+  font-family: inherit;
+}
+
+.chartContainer :global(.recharts-line:nth-of-type(1) path) {
+  stroke: $accent;
+  stroke-opacity: 0.9;
+}
+
+.chartContainer :global(.recharts-line:nth-of-type(2) path) {
+  stroke: rgba(#0b0d1a, 0.55);
+}

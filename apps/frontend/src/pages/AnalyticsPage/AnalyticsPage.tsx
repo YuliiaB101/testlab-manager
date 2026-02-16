@@ -1,24 +1,29 @@
 import { useState, useEffect } from 'react';
-import { Machine } from '../../types';
+import { Machine, TestRun } from '../../types';
 import styles from './AnalyticsPage.module.scss';
+import { apiMachines, apiTestRuns } from '../../services/api';
 import MachineByLabCard from '../../components/MachinesByLabCard/MachinesByLabCard';
-import { apiMachines } from '../../services/api';
+import AvailabilityByLabCard from '../../components/AvailabilityByLabCard/AvailabilityByLabCard';
+import MachineTypesCard from '../../components/MachinesTypeCard/MachinesTypeCard';
+import RunsTrendCard from '../../components/RunsTrendCard/RunsTrendCard';
 
 export default function AnalyticsPage() {
-  const [machines, setMachines] = useState<Machine[]>([]);
-  const [loading, setLoading] = useState(true);
+    const [machines, setMachines] = useState<Machine[]>([]);
+    const [runs, setRuns] = useState<TestRun[]>([]);
+    const [loading, setLoading] = useState(true);
 
-  const load = async (term: string) => {
-    setLoading(true);
-    const data = await apiMachines(term);
-    setMachines(data.machines);
-    setLoading(false);
-  };
+    const load = async (term: string) => {
+        setLoading(true);
+        const data = await apiMachines(term);
+        setMachines(data.machines);
+        const runsData = await apiTestRuns();
+        setRuns(runsData.runs);
+        setLoading(false);
+    };
 
-  useEffect(() => {
-    load("");
-  }, []);
-
+    useEffect(() => {
+        load("");
+    }, []);
 
     if (loading) {
         return (
@@ -33,9 +38,10 @@ export default function AnalyticsPage() {
         <div className={styles.analyticsPage}>
             <h2>Analytics</h2>
             <div className={styles.analyticsGrid}>
+                <AvailabilityByLabCard machines={machines} loading={loading} />
+                <RunsTrendCard runs={runs} days={14} loading={loading} />
+                <MachineTypesCard machines={machines} loading={loading} />
                 <MachineByLabCard machines={machines} loading={loading} />
-                {/* <AvailabilityByLabCard machines={machines} /> */}
-                {/* <MachineTypesCard machines={machines} /> */}
             </div>
         </div>
     );

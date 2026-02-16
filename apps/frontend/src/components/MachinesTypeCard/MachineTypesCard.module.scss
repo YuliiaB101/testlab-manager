@@ -1,0 +1,30 @@
+@use "../../styles/variables" as *;
+
+.chartContainer {
+  position: relative;
+  height: 300px;
+}
+
+.centerLabel {
+  position: absolute;
+  inset: 110px;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.centerValue {
+  font-size: 28px;
+  font-weight: 800;
+  color: $color-text;
+  line-height: 1;
+  margin-bottom: -8px;
+}
+
+.centerText {
+  font-size: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(#0b0d1a, 0.55);
+}
+

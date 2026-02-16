@@ -13,25 +13,36 @@
   &--green {
     background: $success-soft;
     color: $success;
+    border: 1px solid $success;
   }
 
   &--red {
     background: $error-soft;
     color: $error;
+    border: 1px solid $error;
   }
 
   &--grey {
     background: $grey-soft;
     color: $grey;
+    border: 1px solid $grey;
   }
 
   &--yellow {
     background: $warning-soft;
     color: $warning;
+    border: 1px solid $warning;
   }
 
   &--blue {
     background: $accent-soft;
     color: $accent;
+    border: 1px solid $accent;
+  }
+
+  &--black {
+    background: $black-soft;
+    color: $black;
+    border: 1px solid $black;
   }
 }

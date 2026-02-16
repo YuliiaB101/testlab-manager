@@ -1,7 +1,7 @@
 @use "../../styles/mixins" as *;
 @use "../../styles/variables" as *;
 
-.statsPage {
+.analyticsPage {
   @include page-container;
   display: grid;
   gap: 20px;
@@ -11,26 +11,10 @@
   }
 }
 
-.chartsContainer {
+.analyticsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
   gap: 24px;
-}
-
-.chartCard {
-  background: rgba(#fff, 0.82);
-  border: 1px solid rgba(#0b0d1a, 0.1);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 6px 18px rgba(15, 22, 48, 0.06);
-  transition:
-    box-shadow 0.15s ease,
-    transform 0.06s ease;
-
-  &:hover {
-    box-shadow: 0 8px 22px rgba(15, 22, 48, 0.1);
-    transform: translateY(-2px);
-  }
 }
 
 .loading {

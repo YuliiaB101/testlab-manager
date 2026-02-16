@@ -4,7 +4,7 @@ const STATUS_CONFIG = {
   available: { label: 'Available', color: 'green' },
   reserved: { label: 'Reserved', color: 'yellow' },
   locked: { label: 'Locked', color: 'red' },
-  offline: { label: 'Offline', color: 'grey' },
+  offline: { label: 'Offline', color: 'black' },
   busy: { label: 'Busy', color: 'blue' },
   active: { label: 'Active', color: 'yellow' },
   completed: { label: 'Completed', color: 'green' },

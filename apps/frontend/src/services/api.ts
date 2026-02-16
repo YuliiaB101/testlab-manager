@@ -1,4 +1,4 @@
-﻿import { Machine, Reservation, Notification, User } from "../types";
+﻿import { Machine, Reservation, Notification, User, TestRun } from "../types";
 
 const API_BASE = "http://localhost:4000/api";
 
@@ -138,4 +138,9 @@ export const apiCreateNotification = async (
 export const apiTests = async () => {
   const res = await fetch(`${API_BASE}/tests`);
   return handle<{ tests: { id: number; suite: string; name: string; description?: string }[] }>(res);
+};
+
+export const apiTestRuns = async () => {
+  const res = await fetch(`${API_BASE}/test-runs`);
+  return handle<{ runs: TestRun[] }>(res);
 };

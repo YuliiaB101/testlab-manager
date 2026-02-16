@@ -15,9 +15,10 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  height: 116px;
   gap: 14px;
 
-  padding: 20px 70px;
+  padding: 30px 30px 20px 70px;
   background: rgba(#0b0d1a, 0.02);
   border-bottom: 1px solid rgba(#0b0d1a, 0.06);
 
@@ -78,14 +79,14 @@
 }
 
 .kpiLabel {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 750;
   letter-spacing: 0.06em;
   color: rgba(#0b0d1a, 0.55);
 }
 
 .kpiValue {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 800;
   color: rgba(#0b0d1a, 0.90);
 }

@@ -415,6 +415,19 @@ app.post("/api/tests/run", requireAuth, async (req: AuthRequest, res) => {
   }
 });
 
+app.get("/api/test-runs", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT * FROM test_runs 
+       ORDER BY started_at DESC 
+       LIMIT 1000`
+    );
+    res.json({ runs: result.rows });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch test runs" });
+  }
+});
+
 app.listen(port, () => {
   console.log(`API running on http://localhost:${port}`);
 });

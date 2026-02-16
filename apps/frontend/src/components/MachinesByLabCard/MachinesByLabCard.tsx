@@ -49,9 +49,9 @@ const MachineByLabCard: React.FC<MachinesByLabCardProps> = ({ machines, loading 
                         <Tooltip
                             cursor={{ fillOpacity: 0.06 }}
                             formatter={(value: number | undefined) => [value ?? 0, "Machines"]}
-                            labelFormatter={(label) => `Lab: ${label}`}
+                            labelFormatter={(label) => `Location: ${label}`}
                         />
-                        <Bar dataKey="count" radius={[8, 8, 8, 8]} />
+                        <Bar dataKey="count" radius={[8, 8, 0, 0]} />
                     </BarChart>
                 </ResponsiveContainer>
             </div>
