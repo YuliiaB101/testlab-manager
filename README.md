@@ -14,12 +14,9 @@ The project focuses on backend state validation, safe concurrent operations, and
 
 ---
 
-## Live Demo
+## 🎥 Short Video Walkthrough (2 minutes): (add link)
 
-🔗 Demo: (add link if available)  
-🎥 Video Walkthrough: (add link)
-
-## Screenshots
+## 📸 Screenshots
 
 ### Dashboard
 ![Dashboard](./docs/dashboard.png)
