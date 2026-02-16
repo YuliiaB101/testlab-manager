@@ -17,6 +17,21 @@ The project focuses on backend state validation, safe concurrent operations, and
 
 ---
 
+## Table of Contents
+
+- [🎥 Short Video Walkthrough](#-short-video-walkthrough-2-minutes-add-link)
+- [📸 Screenshots](#-screenshots)
+- [Architecture Overview](#architecture-overview)
+- [What This Project Demonstrates](#what-this-project-demonstrates)
+- [Features](#features)
+- [Role-Based Access Control](#role-based-access-control)
+- [Security & Validation](#security--validation)
+- [Tech Stack](#tech-stack)
+- [Setup](#setup)
+- [System States](#system-states)
+- [Future Improvements](#future-improvements)
+
+
 ## 🎥 Short Video Walkthrough (2 minutes): (add link)
 
 ## 📸 Screenshots
