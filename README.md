@@ -6,7 +6,10 @@
 ![Express](https://img.shields.io/badge/Express-API-black)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-336791)
 ![JWT](https://img.shields.io/badge/Auth-JWT-orange)
-
+![RBAC](https://img.shields.io/badge/Security-RBAC-purple)
+![REST%20API](https://img.shields.io/badge/API-REST-lightgrey)
+![Recharts](https://img.shields.io/badge/Charts-Recharts-ff6384)
+![Monorepo](https://img.shields.io/badge/Structure-Monorepo-blueviolet)
 
 TestLab Manager is a full-stack TypeScript application that simulates a real-world test laboratory management system. It models machine reservations, automated test execution workflows, operational monitoring, and role-based access control.
 
