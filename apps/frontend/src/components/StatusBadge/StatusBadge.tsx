@@ -1,18 +1,8 @@
 import styles from "./StatusBadge.module.scss";
-
-const STATUS_CONFIG = {
-  available: { label: 'Available', color: 'green' },
-  reserved: { label: 'Reserved', color: 'yellow' },
-  locked: { label: 'Locked', color: 'red' },
-  offline: { label: 'Offline', color: 'black' },
-  busy: { label: 'Busy', color: 'blue' },
-  active: { label: 'Active', color: 'yellow' },
-  completed: { label: 'Completed', color: 'green' },
-  cancelled: { label: 'Cancelled', color: 'red' },
-};
+import { STATUS_CONFIG, StatusKey } from "../../constants/status";
 
 export interface StatusBadgeProps {
-  status: keyof typeof STATUS_CONFIG;
+  status: StatusKey;
 }
 
 export default function StatusBadge({ status }: StatusBadgeProps) {

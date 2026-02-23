@@ -40,6 +40,7 @@ export default function BookingWizard({
   const [flags, setFlags] = useState<string[]>([]);
   const [testPlan, setTestPlan] = useState("");
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const bookingSteps = Object.values(BookingStep);
 
   const currentDurationHours = useMemo(
@@ -63,17 +64,23 @@ export default function BookingWizard({
 
   const handleSubmit = async () => {
     setLoading(true);
-    await onConfirm({
-      durationHours,
-      sessionName,
-      setupOptions: {
-        osVersion: osVersion || undefined,
-        tools,
-        flags
-      },
-      testPlan: testPlan || undefined
-    });
-    setLoading(false);
+    setSubmitError(null);
+    try {
+      await onConfirm({
+        durationHours,
+        sessionName,
+        setupOptions: {
+          osVersion: osVersion || undefined,
+          tools,
+          flags
+        },
+        testPlan: testPlan || undefined
+      });
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "Failed to reserve machine");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleNext = () => {
@@ -215,6 +222,7 @@ export default function BookingWizard({
         </div>
 
         <footer className={styles.bookingWizard__footer}>
+          {submitError && <div className={styles.bookingWizard__help}>{submitError}</div>}
           <button className={styles.bookingWizard__secondary} onClick={onClose}>
             Cancel
           </button>

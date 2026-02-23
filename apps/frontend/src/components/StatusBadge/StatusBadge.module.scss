@@ -1,4 +1,5 @@
 @use "../../styles/variables" as *;
+@use "../../styles/mixins" as m;
 
 .statusBadge {
   display: inline-block;
@@ -11,38 +12,26 @@
   text-align: center;
 
   &--green {
-    background: $success-soft;
-    color: $success;
-    border: 1px solid $success;
+    @include m.status-tone($success-soft, $success);
   }
 
   &--red {
-    background: $error-soft;
-    color: $error;
-    border: 1px solid $error;
+    @include m.status-tone($error-soft, $error);
   }
 
   &--grey {
-    background: $grey-soft;
-    color: $grey;
-    border: 1px solid $grey;
+    @include m.status-tone($grey-soft, $grey);
   }
 
   &--yellow {
-    background: $warning-soft;
-    color: $warning;
-    border: 1px solid $warning;
+    @include m.status-tone($warning-soft, $warning);
   }
 
   &--blue {
-    background: $accent-soft;
-    color: $accent;
-    border: 1px solid $accent;
+    @include m.status-tone($accent-soft, $accent);
   }
 
   &--black {
-    background: $black-soft;
-    color: $black;
-    border: 1px solid $black;
+    @include m.status-tone($black-soft, $black);
   }
 }

@@ -1,7 +1,7 @@
 @use "../../styles/variables" as *;
 @use "../../styles/mixins" as m;
 
-.machineTable {
+.timelineTable {
   width: 100%;
   table-layout: fixed;
   border-collapse: separate;
@@ -34,26 +34,14 @@
       letter-spacing: 0.06em;
       font-size: 12px;
       border-bottom: 1px solid $color-border-strong;
-      padding-left: 20px;
     }
 
     th:nth-child(1) {
       width: 30%;
     }
 
-    th:nth-child(2),
-    th:nth-child(4) {
-      width: 12%;
-    }
-
-    th:nth-child(3),
-    th:nth-child(5) {
-      width: 8%;
-    }
-
-    th:nth-child(6) {
-      width: 12%;
-      min-width: 138px;
+    th:nth-child(2) {
+      width: 70%;
     }
   }
 
@@ -76,18 +64,18 @@
       color: #0b0d1a;
     }
   }
-}
 
-.machineTable__header {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-  white-space: nowrap;
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    white-space: nowrap;
+  }
 }
 
 @media (max-width: 700px) {
-  .machineTable {
+  .timelineTable {
     th,
     td {
       padding: 10px 12px;

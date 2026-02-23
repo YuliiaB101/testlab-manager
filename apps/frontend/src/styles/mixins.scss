@@ -31,3 +31,14 @@
   padding: 20px 24px;
 }
 
+@mixin status-tone($background, $color, $border: $color) {
+  background: $background;
+  color: $color;
+  border: 1px solid $border;
+}
+
+@mixin table-top-rounded($radius: 14px) {
+  border-radius: $radius;
+  overflow: hidden;
+}
+

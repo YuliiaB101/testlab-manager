@@ -7,10 +7,38 @@ const jsonHeaders = (token?: string) => ({
   ...(token ? { Authorization: `Bearer ${token}` } : {})
 });
 
+const extractErrorMessage = (data: unknown): string => {
+  if (!data || typeof data !== "object") return "Request failed";
+
+  const maybeData = data as {
+    error?: unknown;
+    message?: unknown;
+    details?: { fieldErrors?: Record<string, string[]> };
+  };
+
+  if (typeof maybeData.error === "string" && maybeData.error.trim()) {
+    return maybeData.error;
+  }
+
+  if (typeof maybeData.message === "string" && maybeData.message.trim()) {
+    return maybeData.message;
+  }
+
+  const fieldErrors = maybeData.details?.fieldErrors;
+  if (fieldErrors) {
+    for (const [field, messages] of Object.entries(fieldErrors)) {
+      const first = messages?.[0];
+      if (first) return `${field}: ${first}`;
+    }
+  }
+
+  return "Request failed";
+};
+
 async function handle<T>(res: Response): Promise<T> {
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || "Request failed");
+    throw new Error(extractErrorMessage(data));
   }
   return res.json();
 }

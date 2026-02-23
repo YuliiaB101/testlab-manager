@@ -24,7 +24,6 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    /* prevent tags from wrapping to next line; allow name to truncate if needed */
   }
 
   &__name {

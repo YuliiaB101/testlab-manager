@@ -22,6 +22,62 @@ app.use(
 
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
+const validationError = (error: z.ZodError) => {
+  const firstIssue = error.issues[0];
+  if (!firstIssue) {
+    return { error: "Validation failed", details: error.flatten() };
+  }
+
+  const path = firstIssue.path.length ? `${firstIssue.path.join(".")}: ` : "";
+  return {
+    error: `${path}${firstIssue.message}`,
+    details: error.flatten()
+  };
+};
+
+const reconcileMachineStatuses = async () => {
+  await pool.query(
+    `UPDATE reservations
+     SET status='completed'
+     WHERE status='active' AND end_at <= NOW()`
+  );
+
+  await pool.query(
+    `UPDATE test_runs
+     SET status='completed', finished_at=COALESCE(finished_at, NOW())
+     WHERE status='running' AND finished_at IS NOT NULL AND finished_at <= NOW()`
+  );
+
+  await pool.query(
+    `UPDATE machines m
+     SET status = CASE
+       WHEN m.status = 'offline' THEN 'offline'
+       WHEN EXISTS (
+         SELECT 1
+         FROM reservations r
+         WHERE r.machine_id = m.id
+           AND r.status = 'active'
+           AND r.end_at > NOW()
+           AND r.setup_options @> '{"flags": ["admin-reservation"]}'::jsonb
+       ) THEN 'locked'
+       WHEN EXISTS (
+         SELECT 1
+         FROM test_runs tr
+         WHERE tr.machine_id = m.id
+           AND tr.status = 'running'
+       ) THEN 'busy'
+       WHEN EXISTS (
+         SELECT 1
+         FROM reservations r
+         WHERE r.machine_id = m.id
+           AND r.status = 'active'
+           AND r.end_at > NOW()
+       ) THEN 'reserved'
+       ELSE 'available'
+     END`
+  );
+};
+
 const requireAdmin = async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   if (!req.userId) return res.status(401).json({ error: "Missing token" });
   const result = await pool.query("SELECT role FROM users WHERE id=$1", [req.userId]);
@@ -38,7 +94,7 @@ const registerSchema = z.object({
 
 app.post("/api/auth/register", async (req, res) => {
   const parsed = registerSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+  if (!parsed.success) return res.status(400).json(validationError(parsed.error));
 
   const { name, email, password } = parsed.data;
   const existing = await pool.query("SELECT id FROM users WHERE email = $1", [email]);
@@ -62,7 +118,7 @@ const loginSchema = z.object({
 
 app.post("/api/auth/login", async (req, res) => {
   const parsed = loginSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+  if (!parsed.success) return res.status(400).json(validationError(parsed.error));
 
   const { email, password } = parsed.data;
   const result = await pool.query("SELECT id, name, email, role, password_hash FROM users WHERE email=$1", [email]);
@@ -82,6 +138,7 @@ app.get("/api/me", requireAuth, async (req: AuthRequest, res) => {
 });
 
 app.get("/api/machines", async (req, res) => {
+  await reconcileMachineStatuses();
   const search = String(req.query.search || "").trim();
   if (search) {
     const result = await pool.query(
@@ -95,6 +152,7 @@ app.get("/api/machines", async (req, res) => {
 });
 
 app.get("/api/machines/:id", async (req, res) => {
+  await reconcileMachineStatuses();
   const id = Number(req.params.id);
   const result = await pool.query("SELECT * FROM machines WHERE id=$1", [id]);
   if (!result.rowCount) return res.status(404).json({ error: "Not found" });
@@ -106,7 +164,7 @@ app.get("/api/machines/:id", async (req, res) => {
 });
 
 const reservationSchema = z.object({
-  durationHours: z.number().int().min(1).max(168),
+  durationHours: z.number().int().min(1).max(24 * 365),
   sessionName: z.string().min(2).max(80),
   setupOptions: z.object({
     osVersion: z.string().optional(),
@@ -117,9 +175,10 @@ const reservationSchema = z.object({
 });
 
 app.post("/api/machines/:id/reservations", requireAuth, async (req: AuthRequest, res) => {
+  await reconcileMachineStatuses();
   const machineId = Number(req.params.id);
   const parsed = reservationSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+  if (!parsed.success) return res.status(400).json(validationError(parsed.error));
 
   const { durationHours, sessionName, setupOptions, testPlan } = parsed.data;
   const startAt = new Date();
@@ -161,6 +220,7 @@ app.post("/api/machines/:id/reservations", requireAuth, async (req: AuthRequest,
 });
 
 app.post("/api/machines/:id/lock", requireAuth, requireAdmin, async (req: AuthRequest, res) => {
+  await reconcileMachineStatuses();
   const machineId = Number(req.params.id);
   const force = String(req.query.force || "false") === "true";
 
@@ -246,6 +306,7 @@ app.post("/api/machines/:id/lock", requireAuth, requireAdmin, async (req: AuthRe
 });
 
 app.post("/api/machines/:id/unlock", requireAuth, requireAdmin, async (req: AuthRequest, res) => {
+  await reconcileMachineStatuses();
   const machineId = Number(req.params.id);
 
   const client = await pool.connect();
@@ -359,7 +420,7 @@ const notificationSchema = z.object({
 
 app.post("/api/notifications", requireAuth, async (req: AuthRequest, res) => {
   const parsed = notificationSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+  if (!parsed.success) return res.status(400).json(validationError(parsed.error));
 
   const { title, body, status } = parsed.data;
   const result = await pool.query(
@@ -380,8 +441,9 @@ const testRunSchema = z.object({
 });
 
 app.post("/api/tests/run", requireAuth, async (req: AuthRequest, res) => {
+  await reconcileMachineStatuses();
   const parsed = testRunSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+  if (!parsed.success) return res.status(400).json(validationError(parsed.error));
 
   const { machineId, testIds } = parsed.data;
   const client = await pool.connect();
@@ -416,6 +478,7 @@ app.post("/api/tests/run", requireAuth, async (req: AuthRequest, res) => {
 });
 
 app.get("/api/test-runs", async (req, res) => {
+  await reconcileMachineStatuses();
   try {
     const result = await pool.query(
       `SELECT * FROM test_runs 

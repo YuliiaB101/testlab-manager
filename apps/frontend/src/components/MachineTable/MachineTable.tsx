@@ -28,7 +28,7 @@ const MachineTable: React.FC<MachineTableProps> = ({ machines, selectable, selec
       ram: uniqNumeric(machines.map((m) => m.ram_gb)),
       gpu: uniq(machines.map((m) => firstWord(m.gpu ?? "—"))),
       location: uniq(machines.map((m) => m.location)),
-      status: uniq(machines.map((m) => firstWord(m.status)))
+      status: uniq(machines.map((m) => m.status))
     };
   }, [machines]);
 
@@ -39,7 +39,7 @@ const MachineTable: React.FC<MachineTableProps> = ({ machines, selectable, selec
       if (ramFilter.length && !ramFilter.includes(`${m.ram_gb} GB`)) return false;
       if (gpuFilter.length && !gpuFilter.includes(firstWord(m.gpu ?? "—"))) return false;
       if (locationFilter.length && !locationFilter.includes(m.location)) return false;
-      if (statusFilter.length && !statusFilter.includes(firstWord(m.status))) return false;
+      if (statusFilter.length && !statusFilter.includes(m.status)) return false;
       return true;
     });
   }, [machines, cpuFilter, ramFilter, gpuFilter, locationFilter, statusFilter]);

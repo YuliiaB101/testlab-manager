@@ -92,7 +92,7 @@
   &__grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 16px; // slightly tighter
+    gap: 16px;
   }
 
   &__loading {
@@ -101,6 +101,47 @@
     border: 1px solid $color-border-strong;
     border-radius: 14px;
     box-shadow: 0 2px 10px rgba(21, 24, 40, 0.05);
+  }
+
+  &__infoRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    &__buttons {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    &__button {
+      color: rgba(#0b0d1a, 0.65);
+      background: rgba(#2b5cff, 0.1);
+      text-decoration: none;
+      padding: 8px 10px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 650;
+
+      transition:
+        background 0.15s ease,
+        color 0.15s ease;
+
+      &:hover {
+        color: #0b0d1a;
+        background: rgba(#2b5cff, 0.06);
+      }
+
+      &_active {
+        color: #0b0d1a;
+        background: rgba(#2b5cff, 0.1);
+      }
+    }
+
+    &__filter {
+      margin-left: 4px;
+    }
   }
 
   @media (max-width: 700px) {
@@ -112,6 +153,5 @@
         width: 100%;
       }
     }
-
   }
 }
