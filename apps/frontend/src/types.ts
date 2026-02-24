@@ -28,7 +28,7 @@ export interface Reservation {
   session_name: string;
   start_at: string;
   end_at: string;
-  status: "active" | "completed" | "cancelled";
+  status: "pending" | "active" | "completed" | "cancelled";
   setup_options: {
     osVersion?: string;
     tools?: string[];

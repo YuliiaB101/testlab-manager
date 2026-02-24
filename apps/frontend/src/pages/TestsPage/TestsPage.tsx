@@ -94,8 +94,6 @@ const TestsPage: React.FC = () => {
         [machines, reservations]
     );
 
-    console.log("reservedMachines:", reservedMachines);
-
     const toggleTest = (testId: string) => {
         setSelectedTests((prev) => {
             const next = new Set(prev);

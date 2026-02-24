@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Machine, Reservation, TestRun } from "../../types";
-import { STATUS_CONFIG } from "../../constants/status";
+import { STATUS_CONFIG, StatusColor } from "../../constants/status";
 import styles from "./TimelineRow.module.scss";
 import { Link } from "react-router-dom";
 
@@ -10,15 +10,16 @@ type TimelineRowProps = {
     testRuns: TestRun[];
 };
 
-const START_OFFSET_HOURS = -1;
-const END_OFFSET_HOURS = 6;
-const TOTAL_SEGMENTS = END_OFFSET_HOURS - START_OFFSET_HOURS;
+const DAY_START_HOUR = 8;
+const DAY_END_HOUR = 22;
+const TOTAL_SEGMENTS = DAY_END_HOUR - DAY_START_HOUR;
 const HOUR_MS = 60 * 60 * 1000;
 
 const formatHour = (date: Date) =>
     date.toLocaleTimeString([], {
-        hour: "numeric",
-        minute: "2-digit"
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
     });
 
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
@@ -32,7 +33,30 @@ const parseDateSafe = (value?: string | null) => {
 type Interval = {
     startMs: number;
     endMs: number;
-    statusColor: keyof typeof STATUS_CONFIG;
+    tone: StatusColor;
+};
+
+type TimelinePiece = {
+    key: string;
+    tone: StatusColor;
+    left: number;
+    width: number;
+    isPast: boolean;
+};
+
+const TONE_PRIORITY: Record<StatusColor, number> = {
+    green: 1,
+    grey: 2,
+    yellow: 3,
+    red: 4,
+    blue: 5,
+    black: 6
+};
+
+const pickTopTone = (tones: StatusColor[]): StatusColor => {
+    return tones.reduce((top, tone) =>
+        TONE_PRIORITY[tone] > TONE_PRIORITY[top] ? tone : top
+    , tones[0]);
 };
 
 const testRunToStatus = (run: TestRun): keyof typeof STATUS_CONFIG => {
@@ -40,25 +64,34 @@ const testRunToStatus = (run: TestRun): keyof typeof STATUS_CONFIG => {
     return "busy";
 };
 
+const reservationToStatus = (reservation: Reservation): keyof typeof STATUS_CONFIG => {
+    const isAdminReservation = reservation.setup_options?.flags?.includes("admin-reservation");
+    if (isAdminReservation) return "locked";
+    if (reservation.status === "active") return "reserved";
+    return reservation.status;
+};
+
 export default function TimelineRow({ machine, reservations, testRuns }: TimelineRowProps) {
+    const statusConfig = STATUS_CONFIG[machine.status] ?? STATUS_CONFIG.offline;
+    const baseTone: StatusColor = machine.status === "offline" ? "grey" : "green";
+
     const timeline = useMemo(() => {
         const now = new Date();
-        const alignedNow = new Date(now);
-        alignedNow.setMinutes(0, 0, 0);
-        const windowStart = new Date(alignedNow);
-        windowStart.setHours(alignedNow.getHours() + START_OFFSET_HOURS, 0, 0, 0);
+        const windowStart = new Date(now);
+        windowStart.setHours(DAY_START_HOUR, 0, 0, 0);
         const windowStartMs = windowStart.getTime();
         const windowEndMs = windowStartMs + TOTAL_SEGMENTS * HOUR_MS;
 
         const labels = Array.from({ length: TOTAL_SEGMENTS + 1 }, (_, index) => {
             const point = new Date(windowStartMs + index * HOUR_MS);
-            return formatHour(point);
+            const label = point.getHours() % 2 === 0 ? formatHour(point) : "";
+            return label;
         });
 
         const defaultStatusInterval: Interval = {
-            startMs: now.getTime(),
+            startMs: windowStartMs,
             endMs: windowEndMs,
-            statusColor: machine.status
+            tone: baseTone
         };
 
         const reservationIntervals: Interval[] = reservations.flatMap((reservation) => {
@@ -68,9 +101,29 @@ export default function TimelineRow({ machine, reservations, testRuns }: Timelin
                 return [{
                     startMs: start.getTime(),
                     endMs: end.getTime(),
-                    statusColor: reservation.status
+                    tone: STATUS_CONFIG[reservationToStatus(reservation)].color
                 } satisfies Interval];
             });
+
+        const availabilityAfterReservationIntervals: Interval[] = (() => {
+            if (machine.status !== "reserved" && machine.status !== "locked") return [];
+
+            const activeEndMs = reservations
+                .filter((reservation) => reservation.status === "active")
+                .map((reservation) => parseDateSafe(reservation.end_at)?.getTime() ?? null)
+                .filter((value): value is number => value !== null);
+
+            if (!activeEndMs.length) return [];
+
+            const latestEndMs = Math.max(...activeEndMs);
+            if (latestEndMs >= windowEndMs) return [];
+
+            return [{
+                startMs: Math.max(latestEndMs, windowStartMs),
+                endMs: windowEndMs,
+                tone: "green"
+            } satisfies Interval];
+        })();
 
         const testRunIntervals: Interval[] = testRuns.flatMap((run) => {
                 const start = parseDateSafe(run.started_at);
@@ -79,36 +132,65 @@ export default function TimelineRow({ machine, reservations, testRuns }: Timelin
                 return [{
                     startMs: start.getTime(),
                     endMs: finished ? finished.getTime() : windowEndMs,
-                    statusColor: testRunToStatus(run)
+                    tone: STATUS_CONFIG[testRunToStatus(run)].color
                 } satisfies Interval];
             });
 
-        const allIntervals = [defaultStatusInterval, ...reservationIntervals, ...testRunIntervals];
+        const allIntervals = [
+            defaultStatusInterval,
+            ...reservationIntervals,
+            ...testRunIntervals,
+            ...availabilityAfterReservationIntervals
+        ];
 
         const segments = Array.from({ length: TOTAL_SEGMENTS }, (_, index) => {
             const segmentStartMs = windowStartMs + index * HOUR_MS;
             const segmentEndMs = segmentStartMs + HOUR_MS;
 
-            const pastWidth = clamp01((Math.min(now.getTime(), segmentEndMs) - segmentStartMs) / HOUR_MS);
+            const nowMs = now.getTime();
+            const cutPoints = new Set<number>([segmentStartMs, segmentEndMs]);
+            if (nowMs > segmentStartMs && nowMs < segmentEndMs) {
+                cutPoints.add(nowMs);
+            }
 
-            const overlays = allIntervals
-                .map((interval, overlayIndex) => {
-                    const overlapStart = Math.max(segmentStartMs, interval.startMs);
-                    const overlapEnd = Math.min(segmentEndMs, interval.endMs);
-                    if (overlapEnd <= overlapStart) return null;
+            for (const interval of allIntervals) {
+                const overlapStart = Math.max(segmentStartMs, interval.startMs);
+                const overlapEnd = Math.min(segmentEndMs, interval.endMs);
+                if (overlapEnd <= overlapStart) continue;
+                cutPoints.add(overlapStart);
+                cutPoints.add(overlapEnd);
+            }
 
-                    return {
-                        key: `${index}-${overlayIndex}-${interval.statusColor}`,
-                        left: clamp01((overlapStart - segmentStartMs) / HOUR_MS),
-                        width: clamp01((overlapEnd - overlapStart) / HOUR_MS),
-                        statusColor: interval.statusColor
-                    };
-                })
-                .filter((overlay): overlay is { key: string; left: number; width: number; statusColor: keyof typeof STATUS_CONFIG } => Boolean(overlay));
+            const sortedPoints = Array.from(cutPoints).sort((a, b) => a - b);
+            const pieces: TimelinePiece[] = [];
+
+            for (let pointIndex = 0; pointIndex < sortedPoints.length - 1; pointIndex++) {
+                const partStart = sortedPoints[pointIndex];
+                const partEnd = sortedPoints[pointIndex + 1];
+                if (partEnd <= partStart) continue;
+
+                const midPoint = (partStart + partEnd) / 2;
+                const activeTones = allIntervals
+                    .filter((interval) => interval.startMs <= midPoint && interval.endMs >= midPoint)
+                    .map((interval) => interval.tone);
+
+                if (!activeTones.length) continue;
+
+                const tone = pickTopTone(activeTones);
+                const left = clamp01((partStart - segmentStartMs) / HOUR_MS);
+                const width = clamp01((partEnd - partStart) / HOUR_MS);
+
+                pieces.push({
+                    key: `${index}-${pointIndex}-${tone}`,
+                    tone,
+                    left,
+                    width,
+                    isPast: partEnd <= nowMs
+                });
+            }
 
             return {
-                pastWidth,
-                overlays
+                pieces
             };
         });
 
@@ -120,9 +202,7 @@ export default function TimelineRow({ machine, reservations, testRuns }: Timelin
             segments,
             nowPosition
         };
-    }, [machine, reservations, testRuns]);
-
-    const statusConfig = STATUS_CONFIG[machine.status] ?? STATUS_CONFIG.offline;
+    }, [machine, reservations, testRuns, baseTone]);
 
     return (
         <tr className={styles.timelineRow}>
@@ -138,32 +218,36 @@ export default function TimelineRow({ machine, reservations, testRuns }: Timelin
                 </div>
             </td>
             <td>
-                <div className={styles.timelineRow__labels}>
+                <div
+                    className={styles.timelineRow__labels}
+                >
                     {timeline.labels.map((label, index) => (
-                        <span key={`${machine.id}-${label || "empty"}-${index}`} className={styles.timelineRow__label}>
+                        <span
+                            key={`${machine.id}-${label || "empty"}-${index}`}
+                            className={styles.timelineRow__label}
+                            style={{ left: `${(index / (timeline.labels.length - 1)) * 100}%` }}
+                        >
                             {label}
                         </span>
                     ))}
                 </div>
-                <div className={styles.timelineRow__track} aria-label={`Machine status timeline: ${statusConfig.label}`}>
+                <div
+                    className={styles.timelineRow__track}
+                    style={{ gridTemplateColumns: `repeat(${timeline.segments.length}, minmax(0, 1fr))` }}
+                    aria-label={`Machine status timeline: ${statusConfig.label}`}
+                >
                     {timeline.segments.map((segment, index) => (
                         <div
                             key={`${machine.id}-segment-${index}`}
                             className={styles.timelineRow__segment}
                         >
-                            {segment.pastWidth > 0 && (
+                            {segment.pieces.map((piece) => (
                                 <span
-                                    className={styles.timelineRow__segmentPast}
-                                    style={{ width: `${segment.pastWidth * 100}%` }}
-                                />
-                            )}
-                            {segment.overlays.map((overlay) => (
-                                <span
-                                    key={overlay.key}
-                                    className={`${styles.timelineRow__segmentStatus} ${styles[`timelineRow__segmentStatus--${STATUS_CONFIG[overlay.statusColor].color}`]}`}
+                                    key={piece.key}
+                                    className={`${styles.timelineRow__segmentStatus} ${styles[piece.isPast ? `timelineRow__segmentStatusPast--${piece.tone}` : `timelineRow__segmentStatusFuture--${piece.tone}`]}`}
                                     style={{
-                                        left: `${overlay.left * 100}%`,
-                                        width: `${overlay.width * 100}%`
+                                        left: `${piece.left * 100}%`,
+                                        width: `${piece.width * 100}%`
                                     }}
                                 />
                             ))}

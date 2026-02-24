@@ -1,0 +1,30 @@
+@use "../../styles/mixins" as *;
+@use "../../styles/variables" as *;
+
+.reservationsPage {
+  display: grid;
+  gap: 32px;
+
+  &__section {
+    display: grid;
+    gap: 16px;
+  }
+
+  &__title {
+    font-size: 20px;
+    font-weight: 700;
+    color: $color-text;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  &__empty {
+    padding: 32px 24px;
+    text-align: center;
+    background: rgba(#fff, 0.65);
+    border: 1px solid $color-border;
+    border-radius: 16px;
+    color: $color-muted;
+    font-size: 14px;
+  }
+}

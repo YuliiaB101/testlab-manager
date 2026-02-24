@@ -10,6 +10,7 @@ export const STATUS_CONFIG: Record<StatusKey, { label: string; color: StatusColo
   locked: { label: "Locked", color: "red" },
   offline: { label: "Offline", color: "black" },
   busy: { label: "Busy", color: "blue" },
+  pending: { label: "Pending", color: "yellow" },
   active: { label: "Active", color: "yellow" },
   completed: { label: "Completed", color: "green" },
   cancelled: { label: "Cancelled", color: "red" }

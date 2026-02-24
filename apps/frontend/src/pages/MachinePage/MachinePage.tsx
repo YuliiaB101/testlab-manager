@@ -35,6 +35,15 @@ export default function MachinePage() {
   useEffect(() => {
     setLoading(true);
     Promise.all([loadMachine(), loadReservations()]).finally(() => setLoading(false));
+
+    const intervalId = window.setInterval(() => {
+      void loadMachine();
+      void loadReservations();
+    }, 30000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
   }, [id, token]);
 
   const handleReserve = async (payload: BookingPayload) => {

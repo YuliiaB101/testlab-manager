@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS reservations (
   session_name TEXT NOT NULL,
   start_at TIMESTAMPTZ NOT NULL,
   end_at TIMESTAMPTZ NOT NULL,
-  status TEXT NOT NULL DEFAULT 'active',
+  status TEXT NOT NULL DEFAULT 'pending',
   setup_options JSONB NOT NULL DEFAULT '{}'::jsonb,
   test_plan TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()

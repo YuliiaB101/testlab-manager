@@ -91,10 +91,11 @@ export const apiCreateReservation = async (
   token: string,
   machineId: number,
   payload: {
-    durationHours: number;
+    startAt: string;
+    endAt: string;
     sessionName: string;
     setupOptions?: { osVersion?: string; tools?: string[]; flags?: string[] };
-    testPlan?: string;
+    testPlan?: string | null;
   }
 ) => {
   const res = await fetch(`${API_BASE}/machines/${machineId}/reservations`, {
@@ -107,6 +108,13 @@ export const apiCreateReservation = async (
 
 export const apiReservations = async (token: string) => {
   const res = await fetch(`${API_BASE}/reservations`, {
+    headers: jsonHeaders(token)
+  });
+  return handle<{ reservations: Reservation[] }>(res);
+};
+
+export const apiAllReservations = async (token: string) => {
+  const res = await fetch(`${API_BASE}/all-reservations`, {
     headers: jsonHeaders(token)
   });
   return handle<{ reservations: Reservation[] }>(res);

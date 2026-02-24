@@ -25,11 +25,14 @@ export default function Header() {
                     <NavLink to="/tests" className={({ isActive }) => (isActive ? styles.header__nav_active : undefined)}>
                         Tests
                     </NavLink>
-                    <NavLink to="/analytics" className={({ isActive }) => (isActive ? styles.header__nav_active : undefined)}>
-                        Analytics
+                    <NavLink to="/my-reservations" className={({ isActive }) => (isActive ? styles.header__nav_active : undefined)}>
+                        My Reservations
                     </NavLink>
                     <NavLink to="/notifications" className={({ isActive }) => (isActive ? styles.header__nav_active : undefined)}>
-                        Notifications
+                        Inbox
+                    </NavLink>
+                    <NavLink to="/analytics" className={({ isActive }) => (isActive ? styles.header__nav_active : undefined)}>
+                        Analytics
                     </NavLink>
                 </nav>
                 <div className={styles.header__userArea}>

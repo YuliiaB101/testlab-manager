@@ -8,6 +8,7 @@ import NotificationsPage from "./pages/NotificationsPage/NotificationsPage";
 import AuthPage from "./pages/AuthPage/AuthPage";
 import TestsPage from "./pages/TestsPage/TestsPage";
 import AnalyticsPage from "./pages/AnalyticsPage/AnalyticsPage";
+import ReservationsPage from "./pages/ReservationsPage/ReservationsPage";
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { user, initialized } = useAuth();
@@ -35,6 +36,7 @@ export default function App() {
             <Route path="notifications" element={<NotificationsPage />} />
             <Route path="tests" element={<TestsPage />} />
             <Route path="analytics" element={<AnalyticsPage />} />
+            <Route path="my-reservations" element={<ReservationsPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

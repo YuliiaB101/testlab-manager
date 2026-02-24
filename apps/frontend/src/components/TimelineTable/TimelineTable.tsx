@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Machine, Reservation, TestRun } from "../../types";
 import TimelineRow from "../TimelineRow/TimelineRow";
 import styles from "./TimelineTable.module.scss";
-import { apiReservations, apiTestRuns } from "../../services/api";
+import { apiAllReservations, apiTestRuns } from "../../services/api";
 import { useAuth } from "../../state/auth";
 
 type TimelineTableProps = {
@@ -27,7 +27,7 @@ const TimelineTable: React.FC<TimelineTableProps> = ({ machines, statusFilter })
 
       try {
         const [reservationsData, runsData] = await Promise.all([
-          apiReservations(token),
+          apiAllReservations(token),
           apiTestRuns()
         ]);
 

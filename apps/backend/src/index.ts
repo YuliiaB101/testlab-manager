@@ -36,6 +36,14 @@ const validationError = (error: z.ZodError) => {
 };
 
 const reconcileMachineStatuses = async () => {
+  // Activate reservations that have started
+  await pool.query(
+    `UPDATE reservations
+     SET status='active'
+     WHERE status='pending' AND start_at <= NOW()`
+  );
+
+  // Complete reservations that have ended
   await pool.query(
     `UPDATE reservations
      SET status='completed'
@@ -57,6 +65,7 @@ const reconcileMachineStatuses = async () => {
          FROM reservations r
          WHERE r.machine_id = m.id
            AND r.status = 'active'
+           AND r.start_at <= NOW()
            AND r.end_at > NOW()
            AND r.setup_options @> '{"flags": ["admin-reservation"]}'::jsonb
        ) THEN 'locked'
@@ -71,6 +80,7 @@ const reconcileMachineStatuses = async () => {
          FROM reservations r
          WHERE r.machine_id = m.id
            AND r.status = 'active'
+           AND r.start_at <= NOW()
            AND r.end_at > NOW()
        ) THEN 'reserved'
        ELSE 'available'
@@ -164,7 +174,8 @@ app.get("/api/machines/:id", async (req, res) => {
 });
 
 const reservationSchema = z.object({
-  durationHours: z.number().int().min(1).max(24 * 365),
+  startAt: z.coerce.date(),
+  endAt: z.coerce.date(),
   sessionName: z.string().min(2).max(80),
   setupOptions: z.object({
     osVersion: z.string().optional(),
@@ -180,9 +191,7 @@ app.post("/api/machines/:id/reservations", requireAuth, async (req: AuthRequest,
   const parsed = reservationSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(validationError(parsed.error));
 
-  const { durationHours, sessionName, setupOptions, testPlan } = parsed.data;
-  const startAt = new Date();
-  const endAt = new Date(startAt.getTime() + durationHours * 3600 * 1000);
+  const { startAt, endAt, sessionName, setupOptions, testPlan } = parsed.data;
 
   const client = await pool.connect();
   try {
@@ -207,8 +216,10 @@ app.post("/api/machines/:id/reservations", requireAuth, async (req: AuthRequest,
       [req.userId, machineId, sessionName, startAt, endAt, setupOptions || {}, testPlan || null]
     );
 
-    await client.query("UPDATE machines SET status='reserved' WHERE id=$1", [machineId]);
     await client.query("COMMIT");
+
+    // Update machine statuses so the reservation takes effect immediately if it starts now
+    await reconcileMachineStatuses();
 
     res.json({ ok: true });
   } catch (error) {
@@ -372,6 +383,16 @@ app.get("/api/reservations", requireAuth, async (req: AuthRequest, res) => {
   res.json({ reservations: result.rows });
 });
 
+app.get("/api/all-reservations", requireAuth, async (req, res) => {
+  const result = await pool.query(
+    `SELECT r.*, m.name AS machine_name FROM reservations r
+     JOIN machines m ON m.id=r.machine_id
+     WHERE r.status IN ('pending', 'active')
+     ORDER BY r.start_at ASC`
+  );
+  res.json({ reservations: result.rows });
+});
+
 app.post("/api/reservations/:id/complete", requireAuth, async (req: AuthRequest, res) => {
   const reservationId = Number(req.params.id);
   const client = await pool.connect();
@@ -388,12 +409,15 @@ app.post("/api/reservations/:id/complete", requireAuth, async (req: AuthRequest,
 
     const reservation = resv.rows[0];
     await client.query("UPDATE reservations SET status='completed' WHERE id=$1", [reservationId]);
-    await client.query("UPDATE machines SET status='available' WHERE id=$1", [reservation.machine_id]);
-    await client.query(
+    await client.query("COMMIT");
+
+    // Update machine statuses considering all reservations and tests
+    await reconcileMachineStatuses();
+
+    await pool.query(
       "INSERT INTO notifications (user_id, title, body, status) VALUES ($1,$2,$3,$4)",
       [req.userId, "Job completed", `Session '${reservation.session_name}' finished on ${reservation.end_at}`, "success"]
     );
-    await client.query("COMMIT");
 
     res.json({ ok: true });
   } catch {
@@ -494,3 +518,12 @@ app.get("/api/test-runs", async (req, res) => {
 app.listen(port, () => {
   console.log(`API running on http://localhost:${port}`);
 });
+
+// Periodically update machine statuses (every 30 seconds)
+setInterval(async () => {
+  try {
+    await reconcileMachineStatuses();
+  } catch (error) {
+    console.error("Failed to reconcile machine statuses:", error);
+  }
+}, 30000);

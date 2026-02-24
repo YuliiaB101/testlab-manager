@@ -15,10 +15,11 @@ enum BookingStep {
 }
 
 export interface BookingPayload {
-  durationHours: number;
+  startAt: string;
+  endAt: string;
   sessionName: string;
   setupOptions?: { osVersion?: string; tools?: string[]; flags?: string[] };
-  testPlan?: string;
+  testPlan?: string | null;
 }
 
 export default function BookingWizard({
@@ -67,8 +68,9 @@ export default function BookingWizard({
     setSubmitError(null);
     try {
       await onConfirm({
-        durationHours,
-        sessionName,
+        startAt: startAt.toISOString(),
+        endAt: endAt.toISOString(),
+        sessionName: sessionName,
         setupOptions: {
           osVersion: osVersion || undefined,
           tools,
