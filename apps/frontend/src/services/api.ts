@@ -78,7 +78,7 @@ export const apiMachine = async (id: number) => {
   return handle<{ machine: Machine }>(res);
 };
 
-export const apiRunTests = async (token: string, payload: { machineId: number; testIds: number[] }) => {
+export const apiRunTests = async (token: string, payload: { machineId: number; testIds: number[]; estimatedDuration: number }) => {
   const res = await fetch(`${API_BASE}/tests/run`, {
     method: "POST",
     headers: jsonHeaders(token),

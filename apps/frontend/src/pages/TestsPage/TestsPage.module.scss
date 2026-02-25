@@ -101,6 +101,23 @@
     gap: 16px;
   }
 
+  &__selectAll {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: rgba(#0b0d1a, 0.55);
+    line-height: 1.25;
+    gap: 10px;
+
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      margin-top: 2px;
+      accent-color: $accent;
+      cursor: pointer;
+    }
+  }
+
   &__suites {
     display: grid;
     gap: 16px;
@@ -139,7 +156,8 @@
       letter-spacing: -0.01em;
     }
 
-    &HasSelected &Title, &HasSelected &Count {
+    &HasSelected &Title,
+    &HasSelected &Count {
       font-weight: 700;
       color: rgba($accent, 0.8);
     }
@@ -282,14 +300,15 @@
     }
   }
 
-  label {
+  &__commitLabel {
     display: grid;
     gap: 8px;
     font-size: 13px;
     color: rgba(#0b0d1a, 0.75);
+    margin-bottom: 240px;
   }
 
-  select {
+  &__commitSelect {
     border: 1px solid $color-border;
     border-radius: 12px;
     padding: 10px 12px;

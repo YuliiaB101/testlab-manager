@@ -28,7 +28,7 @@ export interface Reservation {
   session_name: string;
   start_at: string;
   end_at: string;
-  status: "pending" | "active" | "completed" | "cancelled";
+  status: "pending" | "busy" | "active" | "completed" | "cancelled";
   setup_options: {
     osVersion?: string;
     tools?: string[];
@@ -51,6 +51,7 @@ export interface Tests {
   suite: string;
   name: string;
   description?: string;
+  estimated_duration?: number;
 }
 
 export interface TestRun {
@@ -62,4 +63,5 @@ export interface TestRun {
   test_ids: number[];
   started_at: string;
   finished_at: string | null;
+  estimated_duration?: number;
 }

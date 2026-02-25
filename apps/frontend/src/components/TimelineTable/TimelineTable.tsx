@@ -14,6 +14,7 @@ const TimelineTable: React.FC<TimelineTableProps> = ({ machines, statusFilter })
   const { token } = useAuth();
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [testRuns, setTestRuns] = useState<TestRun[]>([]);
+  const [timeOffset, setTimeOffset] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -88,7 +89,30 @@ const TimelineTable: React.FC<TimelineTableProps> = ({ machines, statusFilter })
         <thead>
           <tr>
             <th><div className={styles.timelineTable__header}>Name</div></th>
-            <th><div className={styles.timelineTable__header}>Timeline</div></th>
+            <th>
+              <div className={styles.timelineTable__header}>
+                <span>Timeline</span>
+                <div className={styles.timelineTable__headerContent}>
+                  <button
+                    className={styles.timelineTable__navButton}
+                    onClick={() => setTimeOffset((prev) => prev - 2)}
+                    aria-label="Shift timeline 2 hours back"
+                  >
+                    ← 2h
+                  </button>
+                  <span className={styles.timelineTable__timeOffset}>
+                    {timeOffset > 0 ? `+${timeOffset}h` : timeOffset < 0 ? `${timeOffset}h` : "Now"}
+                  </span>
+                  <button
+                    className={styles.timelineTable__navButton}
+                    onClick={() => setTimeOffset((prev) => prev + 2)}
+                    aria-label="Shift timeline 2 hours forward"
+                  >
+                    2h →
+                  </button>
+                </div>
+              </div>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -98,6 +122,7 @@ const TimelineTable: React.FC<TimelineTableProps> = ({ machines, statusFilter })
               machine={m}
               reservations={reservationsByMachine.get(m.id) ?? []}
               testRuns={testRunsByMachine.get(m.id) ?? []}
+              timeOffsetHours={timeOffset}
             />
           ))}
         </tbody>

@@ -61,7 +61,7 @@ const ReservationsPage = () => {
     return (
         <div className={styles.reservationsPage}>
             <section className={styles.reservationsPage__section}>
-                <h2 className={styles.reservationsPage__title}>Active reservations:</h2>
+                <h2 className={styles.reservationsPage__title}>Active reservations</h2>
                 {activeMachines.length > 0 ? (
                     <TimelineTable machines={activeMachines} statusFilter={[]} />
                 ) : (
@@ -70,7 +70,7 @@ const ReservationsPage = () => {
             </section>
 
             <section className={styles.reservationsPage__section}>
-                <h2 className={styles.reservationsPage__title}>Pending reservations:</h2>
+                <h2 className={styles.reservationsPage__title}>Pending reservations</h2>
                 {pendingMachines.length > 0 ? (
                     <TimelineTable machines={pendingMachines} statusFilter={[]} />
                 ) : (

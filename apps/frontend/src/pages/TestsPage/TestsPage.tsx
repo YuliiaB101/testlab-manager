@@ -7,11 +7,14 @@ import { useAuth } from "../../state/auth";
 import { useNotifications } from "../../state/notifications";
 import { useNavigate } from "react-router";
 
+const SYSTEM_SETUP_TIME = 30;
+
 type TestItem = {
     id: number;
     suite: string;
     name: string;
     description?: string;
+    duration?: number;    // time in minutes
 };
 
 enum Step {
@@ -123,13 +126,20 @@ const TestsPage: React.FC = () => {
     const totalSelectedCount = useMemo(() => selectedTests.size, [selectedTests]);
     const totalAvailableCount = useMemo(() => tests.length, [tests.length]);
 
+    const totalDuration = useMemo(() => {
+        const selected = tests.filter((t) => selectedTests.has(String(t.id)));
+        const sum = selected.reduce((acc, t) => acc + (t.duration ?? 10), 0);
+        return sum + SYSTEM_SETUP_TIME;
+    }, [selectedTests, tests]);
+
     const onRun = async () => {
         const tests = Array.from(selectedTests);
         const machine = currentMachine?.name ?? "";
         const chosenConfig = config;
         const testIds = tests.map((id) => Number(id)).filter((id) => !Number.isNaN(id));
+
         if (token && machineId) {
-            await apiRunTests(token, { machineId: Number(machineId), testIds });
+            await apiRunTests(token, { machineId: Number(machineId), testIds, estimatedDuration: totalDuration });
             setMachines((prev) =>
                 prev.map((m) => (String(m.id) === machineId ? { ...m, status: "busy" } : m))
             );
@@ -197,6 +207,21 @@ const TestsPage: React.FC = () => {
             {step === Step.Selection && (
                 <div className={styles.testsPage__panel}>
                     <h3>Choose tests to run:</h3>
+                    <div className={styles.testsPage__selectAll}>
+                        <span>Select all:</span>
+                        <input
+                            type="checkbox"
+                            checked={selectedTests.size === tests.length}
+                            onChange={() => {
+                                if (selectedTests.size === tests.length) {
+                                    setSelectedTests(new Set());
+                                } else {
+                                    setSelectedTests(new Set(tests.map((t) => String(t.id))));
+                                }
+                            }}
+                        />
+                    </div>
+
                     <ol className={styles.testsPage__suites}>
                         {testsBySuite.map((theme) => {
                             const open = openSuites.has(theme.id);
@@ -295,14 +320,16 @@ const TestsPage: React.FC = () => {
             {step === Step.Commit && (
                 <div className={styles.testsPage__panel}>
                     <p>Choose commit to test :</p>
-                    <label>
+                    <label className={styles.testsPage__commitLabel}>
                         Commit
-                        <select>
+                        <select className={styles.testsPage__commitSelect} value={config} onChange={(e) => setConfig(e.target.value)}>
                             <option value="">Use latest</option>
                             <option value="abc123">abc123</option>
                             <option value="def456">def456</option>
                         </select>
                     </label>
+                    <p>Estimated total duration: {totalDuration} minutes</p>
+                    <p>End time: {new Date(Date.now() + totalDuration * 60000).toLocaleString()}</p>
                 </div>
             )}
 

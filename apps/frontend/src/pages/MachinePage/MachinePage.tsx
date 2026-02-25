@@ -145,10 +145,33 @@ export default function MachinePage() {
                 Started {new Date(machine.current_activity.started_at).toLocaleString()}
               </div>
               <div className={styles.machinePage__activity__meta}>
+                Estimated end: {new Date(new Date(machine.current_activity.started_at).getTime() + (machine.current_activity.estimated_duration ?? 10) * 60000).toLocaleString()}
+              </div>
+              <div className={styles.machinePage__activity__meta}>
                 Tests: {machine.current_activity.tests_count}
               </div>
             </div>
-            <StatusBadge status="busy" />
+
+            <div className={styles.machinePage__activity__progressInfo}>
+              <div className={styles.machinePage__activity__progressContainer}>
+                {machine.current_activity.estimated_duration && (
+                  <>
+                    <div className={styles.machinePage__activity__progressBar}>
+                      <div
+                        className={styles.machinePage__activity__progressFill}
+                        style={{
+                          width: `${Math.min(100, Math.max(0, (Date.now() - new Date(machine.current_activity.started_at).getTime()) / (machine.current_activity.estimated_duration * 60000) * 100))}%`
+                        }}
+                      />
+                    </div>
+                    <div className={styles.machinePage__activity__progressLabel}>
+                      {Math.round(Math.min(100, Math.max(0, (Date.now() - new Date(machine.current_activity.started_at).getTime()) / (machine.current_activity.estimated_duration * 60000) * 100)))}%
+                    </div>
+                  </>
+                )}
+              </div>
+              <StatusBadge status="busy" />
+            </div>
           </div>
         ) : (
           <div className={styles.machinePage__activity__empty}>No active tests.</div>

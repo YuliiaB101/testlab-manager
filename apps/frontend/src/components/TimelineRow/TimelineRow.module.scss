@@ -67,7 +67,6 @@
   &__track {
     position: relative;
     display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
     border: 1px solid $color-border-strong;
     border-radius: 10px;
     overflow: hidden;
@@ -78,10 +77,10 @@
     position: relative;
     overflow: hidden;
     border-right: 1px solid rgba(15, 23, 42, 0.12);
+  }
 
-    &:last-child {
-      border-right: 0;
-    }
+  &__segmentLast {
+    border-right: 0;
   }
 
   &__segmentStatus {
@@ -96,7 +95,11 @@
     bottom: 0;
 
     &--green {
-      @include m.status-tone(rgba($success, 0.5), $success, rgba(15, 23, 42, 0.1));
+      @include m.status-tone(
+        rgba($success, 0.5),
+        $success,
+        rgba(15, 23, 42, 0.1)
+      );
     }
 
     &--red {
@@ -108,11 +111,19 @@
     }
 
     &--yellow {
-      @include m.status-tone(rgba($warning, 0.5), $warning, rgba(15, 23, 42, 0.1));
+      @include m.status-tone(
+        rgba($warning, 0.5),
+        $warning,
+        rgba(15, 23, 42, 0.1)
+      );
     }
 
     &--blue {
-      @include m.status-tone(rgba($accent, 0.5), $accent, rgba(15, 23, 42, 0.1));
+      @include m.status-tone(
+        rgba($accent, 0.5),
+        $accent,
+        rgba(15, 23, 42, 0.1)
+      );
     }
 
     &--black {
@@ -126,7 +137,11 @@
     bottom: 0;
 
     &--green {
-      @include m.status-tone(rgba($success, 0.85), $success, rgba(15, 23, 42, 0.1));
+      @include m.status-tone(
+        rgba($success, 0.85),
+        $success,
+        rgba(15, 23, 42, 0.1)
+      );
     }
 
     &--red {
@@ -138,11 +153,19 @@
     }
 
     &--yellow {
-      @include m.status-tone(rgba($warning, 0.85), $warning, rgba(15, 23, 42, 0.1));
+      @include m.status-tone(
+        rgba($warning, 0.85),
+        $warning,
+        rgba(15, 23, 42, 0.1)
+      );
     }
 
     &--blue {
-      @include m.status-tone(rgba($accent, 0.85), $accent, rgba(15, 23, 42, 0.1));
+      @include m.status-tone(
+        rgba($accent, 0.85),
+        $accent,
+        rgba(15, 23, 42, 0.1)
+      );
     }
 
     &--black {

@@ -22,11 +22,11 @@ export default function Header() {
                     <NavLink to="/" className={({ isActive }) => (isActive ? styles.header__nav_active : undefined)}>
                         Machines
                     </NavLink>
-                    <NavLink to="/tests" className={({ isActive }) => (isActive ? styles.header__nav_active : undefined)}>
-                        Tests
-                    </NavLink>
                     <NavLink to="/my-reservations" className={({ isActive }) => (isActive ? styles.header__nav_active : undefined)}>
                         My Reservations
+                    </NavLink>
+                    <NavLink to="/tests" className={({ isActive }) => (isActive ? styles.header__nav_active : undefined)}>
+                        Tests
                     </NavLink>
                     <NavLink to="/notifications" className={({ isActive }) => (isActive ? styles.header__nav_active : undefined)}>
                         Inbox

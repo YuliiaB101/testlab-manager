@@ -50,7 +50,8 @@ CREATE TABLE IF NOT EXISTS tests (
   suite TEXT NOT NULL,
   name TEXT NOT NULL,
   description TEXT,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  estimated_duration INT NOT NULL DEFAULT 10
 );
 
 CREATE TABLE IF NOT EXISTS test_runs (
@@ -61,7 +62,8 @@ CREATE TABLE IF NOT EXISTS test_runs (
   tests_count INT NOT NULL DEFAULT 0,
   test_ids INT[] NOT NULL DEFAULT '{}',
   started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  finished_at TIMESTAMPTZ
+  finished_at TIMESTAMPTZ,
+  estimated_duration INT NOT NULL DEFAULT 30
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS tests_suite_name_unique ON tests (suite, name);
@@ -70,3 +72,4 @@ CREATE INDEX IF NOT EXISTS idx_machines_name ON machines USING GIN (to_tsvector(
 CREATE INDEX IF NOT EXISTS idx_reservations_machine_id ON reservations(machine_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
 CREATE INDEX IF NOT EXISTS idx_test_runs_machine_status ON test_runs(machine_id, status);
+CREATE INDEX IF NOT EXISTS idx_test_runs_estimated_duration ON test_runs(estimated_duration);

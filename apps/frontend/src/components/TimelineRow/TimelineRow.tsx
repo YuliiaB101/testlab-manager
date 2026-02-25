@@ -8,6 +8,7 @@ type TimelineRowProps = {
     machine: Machine;
     reservations: Reservation[];
     testRuns: TestRun[];
+    timeOffsetHours?: number;
 };
 
 const DAY_START_HOUR = 8;
@@ -71,7 +72,7 @@ const reservationToStatus = (reservation: Reservation): keyof typeof STATUS_CONF
     return reservation.status;
 };
 
-export default function TimelineRow({ machine, reservations, testRuns }: TimelineRowProps) {
+export default function TimelineRow({ machine, reservations, testRuns, timeOffsetHours = 0 }: TimelineRowProps) {
     const statusConfig = STATUS_CONFIG[machine.status] ?? STATUS_CONFIG.offline;
     const baseTone: StatusColor = machine.status === "offline" ? "grey" : "green";
 
@@ -79,7 +80,8 @@ export default function TimelineRow({ machine, reservations, testRuns }: Timelin
         const now = new Date();
         const windowStart = new Date(now);
         windowStart.setHours(DAY_START_HOUR, 0, 0, 0);
-        const windowStartMs = windowStart.getTime();
+        const adjustedStart = new Date(windowStart.getTime() + timeOffsetHours * HOUR_MS);
+        const windowStartMs = adjustedStart.getTime();
         const windowEndMs = windowStartMs + TOTAL_SEGMENTS * HOUR_MS;
 
         const labels = Array.from({ length: TOTAL_SEGMENTS + 1 }, (_, index) => {
@@ -128,10 +130,11 @@ export default function TimelineRow({ machine, reservations, testRuns }: Timelin
         const testRunIntervals: Interval[] = testRuns.flatMap((run) => {
                 const start = parseDateSafe(run.started_at);
                 if (!start) return [];
+                const estimatedEnd = run.estimated_duration ? new Date(start.getTime() + run.estimated_duration * 60000) : null;
                 const finished = parseDateSafe(run.finished_at);
                 return [{
                     startMs: start.getTime(),
-                    endMs: finished ? finished.getTime() : windowEndMs,
+                    endMs: finished ? finished.getTime() : estimatedEnd ? estimatedEnd.getTime() : windowEndMs,
                     tone: STATUS_CONFIG[testRunToStatus(run)].color
                 } satisfies Interval];
             });
@@ -202,7 +205,7 @@ export default function TimelineRow({ machine, reservations, testRuns }: Timelin
             segments,
             nowPosition
         };
-    }, [machine, reservations, testRuns, baseTone]);
+    }, [machine, reservations, testRuns, baseTone, timeOffsetHours]);
 
     return (
         <tr className={styles.timelineRow}>
@@ -239,7 +242,7 @@ export default function TimelineRow({ machine, reservations, testRuns }: Timelin
                     {timeline.segments.map((segment, index) => (
                         <div
                             key={`${machine.id}-segment-${index}`}
-                            className={styles.timelineRow__segment}
+                            className={`${styles.timelineRow__segment} ${index === timeline.segments.length - 1 ? styles.timelineRow__segmentLast : ""}`}
                         >
                             {segment.pieces.map((piece) => (
                                 <span
