@@ -11,36 +11,84 @@
 ![Recharts](https://img.shields.io/badge/Charts-Recharts-ff6384)
 ![Monorepo](https://img.shields.io/badge/Structure-Monorepo-blueviolet)
 
-TestLab Manager is a full-stack TypeScript application that simulates a real-world test laboratory management system. It models machine reservations, automated test execution workflows, operational monitoring, and role-based access control.
+TestLab Manager is a full-stack TypeScript application that models a real-world test lab workflow: machine reservations, test execution, admin maintenance flows, and notifications.
 
-The project focuses on backend state validation, safe concurrent operations, and modular frontend architecture.
+The project emphasizes backend state validation, safe concurrent operations, and a modular React architecture.
 
 ---
 
 ## Table of Contents
 
-- [🎥 Short Video Walkthrough](#-short-video-walkthrough-2-minutes-add-link)
-- [📸 Screenshots](#-screenshots)
-- [Architecture Overview](#architecture-overview)
-- [What This Project Demonstrates](#what-this-project-demonstrates)
-- [Features](#features)
-- [Role-Based Access Control](#role-based-access-control)
-- [Security & Validation](#security--validation)
-- [Tech Stack](#tech-stack)
-- [Setup](#setup)
-- [System States](#system-states)
-- [Future Improvements](#future-improvements)
+- [TestLab Manager](#testlab-manager)
+  - [Table of Contents](#table-of-contents)
+  - [🎥 Short Video Walkthrough (2 minutes)](#-short-video-walkthrough-2-minutes)
+  - [📸 Screenshots](#-screenshots)
+  - [Architecture Overview](#architecture-overview)
+  - [What This Project Demonstrates](#what-this-project-demonstrates)
+  - [Features](#features)
+    - [Core Capabilities](#core-capabilities)
+  - [Role-Based Access Control](#role-based-access-control)
+  - [Security \& Validation](#security--validation)
+  - [Tech Stack](#tech-stack)
+    - [Frontend](#frontend)
+    - [Backend](#backend)
+  - [Setup](#setup)
+  - [System States](#system-states)
+    - [Machine Status](#machine-status)
+    - [Test Run Status](#test-run-status)
+    - [Notification Types](#notification-types)
+  - [Future Improvements](#future-improvements)
 
 
-## 🎥 Short Video Walkthrough (2 minutes): (add link)
+## 🎥 Short Video Walkthrough (2 minutes)
+
+- Release asset link: https://github.com/YuliiaB101/testlab-manager/releases/tag/v1.0.0/testlab-walkthrough.mp4
 
 ## 📸 Screenshots
 
-### Dashboard
-![Dashboard](./docs/dashboard.png)
+<details><summary>Open screenshots</summary>
 
-### Machine Reservation
-![Booking](./docs/booking.png)
+**Machines Table**
+
+![Machines Directory](./docs/screenshots/machines.png)
+
+
+**Machines Timeline**
+
+![Machines Timeline](./docs/screenshots/machines-timeline.png)
+
+
+**Machine Details + Current Activity**
+
+![Machine Details](./docs/screenshots/machine-details.png)
+
+
+**My Reservations**
+
+![My Reservations](./docs/screenshots/my-reservations.png)
+
+
+**Tests Runner**
+
+![Tests](./docs/screenshots/tests-run.png)
+![Tests](./docs/screenshots/tests-run-machines.png)
+
+
+**Analytics**
+
+![Analytics](./docs/screenshots/analytics.png)
+
+
+**Notifications**
+
+![Notifications](./docs/screenshots/notifications.png)
+
+
+**Create Account**
+
+![Create Account](./docs/screenshots/create-account.png)
+
+</details>
 
 ---
 
@@ -59,10 +107,10 @@ The system ensures that machine state transitions (Available → Reserved → Bu
 
 - Full-stack TypeScript development
 - REST API design and validation
-- Implementation of role-based access control (RBAC) using backend middleware
-- Safe handling of concurrent machine operations
+- Role-based access control (RBAC) via backend middleware
+- Safe handling of concurrent machine operations (locks/reservations/test runs)
 - Modular React architecture with reusable UI components
-- Data visualization using Recharts
+- Consistent UI state management and notifications
 - Structured project organization (monorepo setup)
 
 ---
@@ -71,32 +119,23 @@ The system ensures that machine state transitions (Available → Reserved → Bu
 
 ### Core Capabilities
 
-- **Test Execution** – Queue and run automated tests on selected machines with custom configurations  
-- **Machine Reservation** – Book machines for scheduled time slots  
-- **Machine Locking (Admin)** – Lock or unlock machines for maintenance  
-- **Analytics Dashboard**
-  - Machine availability by laboratory
-  - Distribution of machines by type
-  - Test run trends
-  - Utilization metrics
-- **Machine Directory** – Overview of machines with live status  
-- **Notifications** – In-app notifications for system events and test updates  
+- **Test Execution** – Queue test runs on selected machines with configurations
+- **Machine Reservation** – Book machines for scheduled time slots
+- **Machine Locking (Admin)** – Lock/unlock machines for maintenance with force-lock handling
+- **Current Activity** – See active test runs on a machine
+- **Machine Directory** – Overview of machines with live status and filters
+- **Notifications** – In-app notifications for system events and test updates
 
 ---
 
 ## Role-Based Access Control
 
-### Regular Users
-- Run tests on available machines  
-- Reserve machines for future sessions  
-- View personal notifications  
-- Access analytics and machine directory  
-
-### Administrators
-- All user capabilities  
-- Lock/unlock machines for maintenance  
-- Override active sessions when locking machines  
-- Manage global machine settings  
+- Run tests on available machines
+- Reserve machines for future sessions
+- View personal notifications
+- Access analytics and machine directory
+- Lock/unlock machines for maintenance (Admin only)
+- Override active sessions when locking machines (Admin only)
 
 ---
 
@@ -112,23 +151,24 @@ The system ensures that machine state transitions (Available → Reserved → Bu
 ## Tech Stack
 
 ### Frontend
-- React  
-- TypeScript  
-- Vite  
-- CSS Modules  
-- React Router  
-- Recharts  
+- React 18 + TypeScript
+- Vite
+- CSS Modules + SCSS
+- React Router
+- Reusable UI components (tables, badges, filters)
 
 ### Backend
-- Node.js  
-- Express  
-- TypeScript  
-- PostgreSQL  
-- JWT Authentication  
+- Node.js + Express (TypeScript)
+- PostgreSQL
+- JWT Authentication
+- RBAC middleware
+- Transactional updates for machine state, reservations, and test runs
 
 ---
 
 ## Setup
+
+<details><summary>Steps:</summary>
 
 1. Create a PostgreSQL database.
 
@@ -138,28 +178,34 @@ The system ensures that machine state transitions (Available → Reserved → Bu
 DATABASE_URL=postgres://USER:PASSWORD@HOST:PORT/DBNAME
 JWT_SECRET=replace-me
 CORS_ORIGIN=http://localhost:5173
+```
 
 3. Install deps (from repo root):
+
 ```
 yarn install
 ```
 
 4. Initialize database schema and seed data:
+
 ```
 yarn db:init
-
 yarn seed
 ```
 
 5. Start backend:
+
 ```
 yarn dev:backend
 ```
 
 6. Start frontend:
+
 ```
 yarn dev:frontend
 ```
+
+</details>
 
 ## System States
 
