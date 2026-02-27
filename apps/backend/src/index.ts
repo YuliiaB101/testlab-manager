@@ -366,11 +366,12 @@ app.post("/api/machines/:id/unlock", requireAuth, requireAdmin, async (req: Auth
   }
 });
 
-app.get("/api/reservations", requireAuth, async (req: AuthRequest, res) => {
+app.get("/api/reservations", requireAuth, async (req: express.Request, res: express.Response) => {
+  const authReq = req as AuthRequest;
   const machineId = req.query.machineId ? Number(req.query.machineId) : null;
   const status = req.query.status ? String(req.query.status) : null;
 
-  const values: Array<number | string> = [req.userId as number];
+  const values: Array<number | string> = [authReq.userId as number];
   let where = "user_id=$1";
 
   if (machineId) {
@@ -392,7 +393,7 @@ app.get("/api/reservations", requireAuth, async (req: AuthRequest, res) => {
   res.json({ reservations: result.rows });
 });
 
-app.get("/api/all-reservations", requireAuth, async (req, res) => {
+app.get("/api/all-reservations", requireAuth, async (_req: express.Request, res: express.Response) => {
   const result = await pool.query(
     `SELECT r.*, m.name AS machine_name FROM reservations r
      JOIN machines m ON m.id=r.machine_id
@@ -402,14 +403,15 @@ app.get("/api/all-reservations", requireAuth, async (req, res) => {
   res.json({ reservations: result.rows });
 });
 
-app.post("/api/reservations/:id/complete", requireAuth, async (req: AuthRequest, res) => {
+app.post("/api/reservations/:id/complete", requireAuth, async (req: express.Request, res: express.Response) => {
+  const authReq = req as AuthRequest;
   const reservationId = Number(req.params.id);
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
     const resv = await client.query(
       "SELECT * FROM reservations WHERE id=$1 AND user_id=$2 FOR UPDATE",
-      [reservationId, req.userId]
+      [reservationId, authReq.userId]
     );
     if (!resv.rowCount) {
       await client.query("ROLLBACK");
@@ -425,7 +427,7 @@ app.post("/api/reservations/:id/complete", requireAuth, async (req: AuthRequest,
 
     await pool.query(
       "INSERT INTO notifications (user_id, title, body, status) VALUES ($1,$2,$3,$4)",
-      [req.userId, "Job completed", `Session '${reservation.session_name}' finished on ${reservation.end_at}`, "success"]
+      [authReq.userId, "Job completed", `Session '${reservation.session_name}' finished on ${reservation.end_at}`, "success"]
     );
 
     res.json({ ok: true });
@@ -437,10 +439,11 @@ app.post("/api/reservations/:id/complete", requireAuth, async (req: AuthRequest,
   }
 });
 
-app.get("/api/notifications", requireAuth, async (req: AuthRequest, res) => {
+app.get("/api/notifications", requireAuth, async (req: express.Request, res: express.Response) => {
+  const authReq = req as AuthRequest;
   const result = await pool.query(
     "SELECT * FROM notifications WHERE user_id=$1 ORDER BY created_at DESC",
-    [req.userId]
+    [authReq.userId]
   );
   res.json({ notifications: result.rows });
 });
@@ -451,19 +454,20 @@ const notificationSchema = z.object({
   status: z.enum(["info", "warning", "error", "success"]).optional()
 });
 
-app.post("/api/notifications", requireAuth, async (req: AuthRequest, res) => {
+app.post("/api/notifications", requireAuth, async (req: express.Request, res: express.Response) => {
+  const authReq = req as AuthRequest;
   const parsed = notificationSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(validationError(parsed.error));
 
   const { title, body, status } = parsed.data;
   const result = await pool.query(
     "INSERT INTO notifications (user_id, title, body, status) VALUES ($1,$2,$3,$4) RETURNING *",
-    [req.userId, title, body, status || "info"]
+    [authReq.userId, title, body, status || "info"]
   );
   res.json({ notification: result.rows[0] });
 });
 
-app.get("/api/tests", async (req, res) => {
+app.get("/api/tests", async (_req: express.Request, res: express.Response) => {
   const result = await pool.query("SELECT * FROM tests ORDER BY suite DESC");
   res.json({ tests: result.rows });
 });
@@ -474,7 +478,8 @@ const testRunSchema = z.object({
   estimatedDuration: z.number().int().positive().optional()
 });
 
-app.post("/api/tests/run", requireAuth, async (req: AuthRequest, res) => {
+app.post("/api/tests/run", requireAuth, async (req: express.Request, res: express.Response) => {
+  const authReq = req as AuthRequest;
   await reconcileMachineStatuses();
   const parsed = testRunSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(validationError(parsed.error));
@@ -499,7 +504,7 @@ app.post("/api/tests/run", requireAuth, async (req: AuthRequest, res) => {
     await client.query("UPDATE machines SET status='busy' WHERE id=$1", [machineId]);
     const runRes = await client.query(
       "INSERT INTO test_runs (machine_id, user_id, status, tests_count, test_ids, estimated_duration) VALUES ($1,$2,'running',$3,$4,$5) RETURNING *",
-      [machineId, req.userId, testIds.length, testIds, estimatedDuration]
+      [machineId, authReq.userId, testIds.length, testIds, estimatedDuration]
     );
     await client.query("COMMIT");
     res.json({ run: runRes.rows[0] });
@@ -511,7 +516,7 @@ app.post("/api/tests/run", requireAuth, async (req: AuthRequest, res) => {
   }
 });
 
-app.get("/api/test-runs", async (req, res) => {
+app.get("/api/test-runs", async (_req: express.Request, res: express.Response) => {
   await reconcileMachineStatuses();
   try {
     const result = await pool.query(
