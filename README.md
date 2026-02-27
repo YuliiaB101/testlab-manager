@@ -23,11 +23,8 @@ The project emphasizes backend state validation, safe concurrent operations, and
   - [Table of Contents](#table-of-contents)
   - [Video Walkthrough (1.5 min)](#video-walkthrough-15-min)
   - [Screenshots](#screenshots)
-  - [Architecture Overview](#architecture-overview)
-  - [What This Project Demonstrates](#what-this-project-demonstrates)
-  - [Features](#features)
-    - [Core Capabilities](#core-capabilities)
-  - [Role-Based Access Control](#role-based-access-control)
+  - [Architecture \& Engineering Highlights](#architecture--engineering-highlights)
+  - [Core Capabilities](#core-capabilities)
   - [Security \& Validation](#security--validation)
   - [Tech Stack](#tech-stack)
     - [Frontend](#frontend)
@@ -44,7 +41,7 @@ The project emphasizes backend state validation, safe concurrent operations, and
 
 ## Screenshots
 
-<details><summary>Open screenshots</summary>
+<details open><summary>Click to open/close screenshots</summary>
 
 **Machines Table**
 
@@ -83,55 +80,37 @@ The project emphasizes backend state validation, safe concurrent operations, and
 
 ---
 
-## Architecture Overview
+## Architecture & Engineering Highlights
 
 - **Frontend** communicates with the backend via a REST API.
-- **Backend** implements role-based access control (RBAC) via middleware and validates business logic constraints.
-- **Database layer** enforces consistent machine state transitions.
-- **Application logic** prevents invalid operations (e.g. reserving locked machines).
+- **Backend** enforces role-based access control (RBAC) through middleware.
+- **Database layer** validates machine state transitions.
+- **Business logic** prevents invalid operations (e.g. reserving locked machines).
+- **Safe handling** of concurrent operations (reservations, test runs, locking).
 
-The system ensures that machine state transitions (Available → Reserved → Busy → Locked) follow defined rules and fail safely if constraints are violated.
-
----
-
-## What This Project Demonstrates
-- Designing REST endpoints with business rule validation
-- Implementing RBAC via backend middleware
-- Handling concurrent machine state transitions safely
-- Structuring a monorepo-based full-stack project
+The system enforces a strict machine lifecycle:
+Available → Reserved → Busy → Locked → Offline
 
 ---
 
-## Features
+## Core Capabilities
 
-### Core Capabilities
-
-- **Test Execution** – Queue test runs on selected machines with configurations
-- **Machine Reservation** – Book machines for scheduled time slots
-- **Machine Locking (Admin)** – Lock/unlock machines for maintenance with force-lock handling
-- **Current Activity** – See active test runs on a machine
-- **Machine Directory** – Overview of machines with live status and filters
-- **Notifications** – In-app notifications for system events and test updates
-
----
-
-## Role-Based Access Control
-
-- Run tests on available machines
-- Reserve machines for future sessions
-- View personal notifications
-- Access analytics and machine directory
-- Lock/unlock machines for maintenance (Admin only)
-- Override active sessions when locking machines (Admin only)
+- **Machine Reservation** – Schedule machines for specific time slots
+- **Test Execution** – Queue and monitor test runs
+- **Machine Locking (Admin)** – Maintenance mode with override support
+- **Machines Table and Timeline** – Dual-view interface with structured machine list and timeline-based status visualization with filtering
+- **Notifications** – In-app system events and updates
+- **Analytics** – Usage statistics and activity overview
 
 ---
 
 ## Security & Validation
 
-- **Parameterized Queries** – Database access via parameterized statements to prevent SQL injection
-- **JWT Authentication** – Token-based authentication for protected API routes
-- **State Validation** – Backend enforces valid machine state transitions
-- **Permission Checks** – Role-based access control for sensitive operations
+- **Parameterized Queries** – All database interactions use parameterized statements to eliminate SQL injection risks and safely bind dynamic input values.
+- **JWT Authentication** – Stateless authentication using JSON Web Tokens with server-side validation of token integrity and expiration.
+- **State Validation** – Backend enforces strict machine lifecycle rules, preventing invalid transitions and unsafe concurrent operations.
+- **Permission Checks** – Role-based access control implemented via backend middleware, restricting privileged operations to authorized users.
+- **SQL Transactions** – Critical operations are wrapped in database transactions (`BEGIN/COMMIT/ROLLBACK`) to ensure atomic and consistent state updates (reservations, locks, test runs).
 
 ---
 
