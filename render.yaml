@@ -4,12 +4,10 @@ services:
     runtime: node
     plan: free
     rootDir: .
-    buildCommand: yarn install --frozen-lockfile && yarn workspace @testlab/backend build
-    startCommand: yarn workspace @testlab/backend start
+    buildCommand: YARN_PRODUCTION=false yarn install --frozen-lockfile && yarn workspace @testlab/backend build
+    startCommand: NODE_ENV=production yarn workspace @testlab/backend start
     autoDeploy: true
     envVars:
-      - key: NODE_ENV
-        value: production
       - key: PORT
         value: 4000
       - key: DATABASE_URL
