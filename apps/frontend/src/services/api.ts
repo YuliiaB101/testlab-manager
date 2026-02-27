@@ -1,6 +1,6 @@
 ﻿import { Machine, Reservation, Notification, User, TestRun } from "../types";
 
-const API_BASE = "http://localhost:4000/api";
+const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim() || "http://localhost:4000/api";
 
 const jsonHeaders = (token?: string) => ({
   "Content-Type": "application/json",

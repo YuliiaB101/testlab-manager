@@ -8,10 +8,20 @@ import { hashPassword, requireAuth, signToken, verifyPassword } from "./auth.js"
 dotenv.config();
 const app = express();
 const port = process.env.PORT ? Number(process.env.PORT) : 4000;
+const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 app.use(helmet());
 app.use(express.json());
 app.use(cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+            return;
+        }
+        callback(new Error("Not allowed by CORS"));
+    },
     credentials: true
 }));
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
