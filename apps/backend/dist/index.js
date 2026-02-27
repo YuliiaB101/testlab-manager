@@ -122,7 +122,8 @@ app.post("/api/auth/login", async (req, res) => {
     res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
 });
 app.get("/api/me", requireAuth, async (req, res) => {
-    const result = await pool.query("SELECT id, name, email, role FROM users WHERE id=$1", [req.userId]);
+    const authReq = req;
+    const result = await pool.query("SELECT id, name, email, role FROM users WHERE id=$1", [authReq.userId]);
     res.json({ user: result.rows[0] });
 });
 app.get("/api/machines", async (req, res) => {
@@ -156,6 +157,7 @@ const reservationSchema = z.object({
     testPlan: z.string().optional()
 });
 app.post("/api/machines/:id/reservations", requireAuth, async (req, res) => {
+    const authReq = req;
     await reconcileMachineStatuses();
     const machineId = Number(req.params.id);
     const parsed = reservationSchema.safeParse(req.body);
@@ -176,7 +178,7 @@ app.post("/api/machines/:id/reservations", requireAuth, async (req, res) => {
         }
         await client.query(`INSERT INTO reservations (user_id, machine_id, session_name, start_at, end_at, setup_options, test_plan)
        VALUES ($1,$2,$3,$4,$5,$6,$7)
-       RETURNING *`, [req.userId, machineId, sessionName, startAt, endAt, setupOptions || {}, testPlan || null]);
+       RETURNING *`, [authReq.userId, machineId, sessionName, startAt, endAt, setupOptions || {}, testPlan || null]);
         await client.query("COMMIT");
         // Update machine statuses so the reservation takes effect immediately if it starts now
         await reconcileMachineStatuses();
@@ -191,6 +193,7 @@ app.post("/api/machines/:id/reservations", requireAuth, async (req, res) => {
     }
 });
 app.post("/api/machines/:id/lock", requireAuth, requireAdmin, async (req, res) => {
+    const authReq = req;
     await reconcileMachineStatuses();
     const machineId = Number(req.params.id);
     const force = String(req.query.force || "false") === "true";
@@ -240,7 +243,7 @@ app.post("/api/machines/:id/lock", requireAuth, requireAdmin, async (req, res) =
         }
         await client.query(`INSERT INTO reservations (user_id, machine_id, session_name, start_at, end_at, setup_options, test_plan)
        VALUES ($1,$2,$3,$4,$5,$6,$7)
-       RETURNING *`, [req.userId, machineId, "Admin maintenance", new Date(), new Date(Date.now() + 24 * 3600 * 1000), { flags: ["admin-reservation"] }, null]);
+       RETURNING *`, [authReq.userId, machineId, "Admin maintenance", new Date(), new Date(Date.now() + 24 * 3600 * 1000), { flags: ["admin-reservation"] }, null]);
         await client.query("UPDATE machines SET status='locked' WHERE id=$1", [machineId]);
         await client.query("COMMIT");
         res.json({ ok: true });
@@ -254,6 +257,7 @@ app.post("/api/machines/:id/lock", requireAuth, requireAdmin, async (req, res) =
     }
 });
 app.post("/api/machines/:id/unlock", requireAuth, requireAdmin, async (req, res) => {
+    const authReq = req;
     await reconcileMachineStatuses();
     const machineId = Number(req.params.id);
     const client = await pool.connect();
@@ -264,7 +268,7 @@ app.post("/api/machines/:id/unlock", requireAuth, requireAdmin, async (req, res)
             await client.query("ROLLBACK");
             return res.status(404).json({ error: "Machine not found" });
         }
-        const adminRes = await client.query("SELECT id FROM reservations WHERE machine_id=$1 AND user_id=$2 AND status='active' AND setup_options @> $3::jsonb", [machineId, req.userId, JSON.stringify({ flags: ["admin-reservation"] })]);
+        const adminRes = await client.query("SELECT id FROM reservations WHERE machine_id=$1 AND user_id=$2 AND status='active' AND setup_options @> $3::jsonb", [machineId, authReq.userId, JSON.stringify({ flags: ["admin-reservation"] })]);
         if (machineRes.rows[0].status !== "locked" && !adminRes.rowCount) {
             await client.query("ROLLBACK");
             return res.status(409).json({ error: "Machine is not locked" });
