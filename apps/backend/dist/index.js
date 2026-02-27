@@ -12,18 +12,32 @@ const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
     .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean);
-app.use(helmet());
-app.use(express.json());
-app.use(cors({
+const isAllowedOrigin = (origin) => {
+    if (!origin)
+        return true;
+    if (allowedOrigins.includes(origin))
+        return true;
+    if (/^https?:\/\/localhost(?::\d+)?$/.test(origin))
+        return true;
+    if (/^https:\/\/[a-z0-9-]+\.onrender\.com$/i.test(origin))
+        return true;
+    return false;
+};
+const corsOptions = {
     origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
+        if (isAllowedOrigin(origin)) {
             callback(null, true);
             return;
         }
-        callback(new Error("Not allowed by CORS"));
+        callback(null, false);
     },
-    credentials: true
-}));
+    credentials: true,
+    optionsSuccessStatus: 204
+};
+app.use(helmet());
+app.use(express.json());
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 const validationError = (error) => {
     const firstIssue = error.issues[0];
