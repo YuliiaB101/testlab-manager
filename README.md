@@ -15,6 +15,12 @@ TestLab Manager is a full-stack TypeScript application designed to manage test l
 
 The project emphasizes backend state validation, safe concurrent operations, and a modular React architecture.
 
+**Live Demo:** [https://testlab-frontend.onrender.com/](https://testlab-frontend.onrender.com/)
+
+**Demo Accounts:**
+- Admin: admin@testlab.com / demo123
+- User: user@testlab.com / demo123
+
 ---
 
 ## Table of Contents

@@ -23,6 +23,20 @@ const users = [
     password_hash: "$2a$10$/Vwuq1byD6XKAjPaTgEUduP4byB1l/9EsqxIUFTT4GSubPArQpzMS",
     created_at: "2026-02-06 20:39:32.961433+01",
     role: "admin"
+  },
+  {
+    name: "Admin Demo",
+    email: "admin@testlab.com",
+    password_hash: "$2a$10$plNweIAcX/GCWp0OsgCkYOLyNY6idDJUt.aiQWQIh.0QqcnK36.bG",
+    created_at: "2026-03-03 18:49:17.283387+01",
+    role: "admin"
+  },
+  {
+    name: "User Demo",
+    email: "user@testlab.com",
+    password_hash: "$2a$10$XdNQph7HKkJGGd5OkMq3me33up0guJEBWej0VTC4nGQTXCnXTE2Oe",
+    created_at: "2026-03-03 18:49:45.534387+01",
+    role: "user"
   }
 ] as const;
 
