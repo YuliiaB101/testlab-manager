@@ -35,9 +35,9 @@ const corsOptions = {
     optionsSuccessStatus: 204
 };
 app.use(helmet());
-app.use(express.json());
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
+app.use(express.json());
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 const validationError = (error) => {
     const firstIssue = error.issues[0];

@@ -37,9 +37,9 @@ const corsOptions: cors.CorsOptions = {
 };
 
 app.use(helmet());
-app.use(express.json());
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
+app.use(express.json());
 
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
