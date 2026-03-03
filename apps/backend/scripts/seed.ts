@@ -36,7 +36,8 @@ const machines = [
     gpu: "NVIDIA RTX 4090",
     storage_gb: 2000,
     location: "Lab A",
-    tags: ["cuda", "win11", "high-perf"]
+    tags: ["cuda", "win11", "high-perf"],
+    status: "offline"
   },
   {
     name: "Nimbus-02",
@@ -47,7 +48,8 @@ const machines = [
     gpu: "NVIDIA RTX 4080",
     storage_gb: 4000,
     location: "Lab A",
-    tags: ["linux", "cuda", "ai"]
+    tags: ["linux", "cuda", "ai"],
+    status: "offline"
   },
   {
     name: "Orion-03",
@@ -80,7 +82,8 @@ const machines = [
     gpu: "NVIDIA A10",
     storage_gb: 8000,
     location: "Lab C",
-    tags: ["server", "linux", "ci"]
+    tags: ["server", "linux", "ci"],
+    status: "offline"
   },
   {
     name: "Zephyr-06",
@@ -146,7 +149,8 @@ const machines = [
     gpu: "NVIDIA L40",
     storage_gb: 12000,
     location: "Lab F",
-    tags: ["server", "linux", "gpu"]
+    tags: ["server", "linux", "gpu"],
+    status: "offline"
   },
   {
     name: "Boreal-12",
@@ -377,117 +381,8 @@ const machines = [
     gpu: "NVIDIA T4",
     storage_gb: 12000,
     location: "Lab E",
-    tags: ["server", "linux", "ci"]
-  },
-  {
-    name: "Lumen-33",
-    type: "Desktop",
-    os: "Windows 11 Pro 23H2",
-    cpu: "AMD Ryzen 7 7700",
-    ram_gb: 32,
-    gpu: "NVIDIA RTX 4060 Ti",
-    storage_gb: 1000,
-    location: "Lab E",
-    tags: ["win11", "qa"]
-  },
-  {
-    name: "Warden-34",
-    type: "Laptop",
-    os: "Ubuntu 20.04 LTS",
-    cpu: "Intel Core i7-1185G7",
-    ram_gb: 16,
-    gpu: "Intel Iris Xe",
-    storage_gb: 512,
-    location: "Lab F",
-    tags: ["linux", "mobile", "ci"]
-  },
-  {
-    name: "Fable-35",
-    type: "Desktop",
-    os: "Windows 11 Pro 23H2",
-    cpu: "Intel Core i5-14400",
-    ram_gb: 16,
-    gpu: "NVIDIA RTX 3060",
-    storage_gb: 1000,
-    location: "Lab F",
-    tags: ["win11", "smoke"]
-  },
-  {
-    name: "Aria-36",
-    type: "Device",
-    os: "Android 14",
-    cpu: "Qualcomm Snapdragon",
-    ram_gb: 12,
-    gpu: "Adreno",
-    storage_gb: 512,
-    location: "Lab A",
-    tags: ["android", "premium"]
-  },
-  {
-    name: "Basilisk-37",
-    type: "Server",
-    os: "Ubuntu 22.04 LTS",
-    cpu: "AMD EPYC 9354",
-    ram_gb: 768,
-    gpu: "NVIDIA H100",
-    storage_gb: 48000,
-    location: "Lab B",
-    tags: ["server", "linux", "ai", "gpu"]
-  },
-  {
-    name: "Cinder-38",
-    type: "Desktop",
-    os: "Ubuntu 22.04 LTS",
-    cpu: "Intel Core i9-12900K",
-    ram_gb: 64,
-    gpu: "NVIDIA RTX 3080",
-    storage_gb: 2000,
-    location: "Lab C",
-    tags: ["linux", "builds"]
-  },
-  {
-    name: "Delta-39",
-    type: "Laptop",
-    os: "Windows 11 Pro 23H2",
-    cpu: "AMD Ryzen 5 7640U",
-    ram_gb: 16,
-    gpu: "Radeon 760M",
-    storage_gb: 512,
-    location: "Lab D",
-    tags: ["mobile", "win11"]
-  },
-  {
-    name: "Eon-40",
-    type: "Device",
-    os: "iOS 15",
-    cpu: "Apple A14",
-    ram_gb: 4,
-    gpu: "Apple GPU",
-    storage_gb: 64,
-    location: "Lab E",
-    tags: ["ios", "legacy"]
-  },
-  {
-    name: "Forge-41",
-    type: "Desktop",
-    os: "Windows 10 22H2",
-    cpu: "Intel Core i7-10700",
-    ram_gb: 16,
-    gpu: "NVIDIA GTX 1070",
-    storage_gb: 512,
-    location: "Lab E",
-    tags: ["win10", "legacy"]
-  },
-  {
-    name: "Gale-42",
-    type: "Server",
-    os: "Ubuntu 20.04 LTS",
-    cpu: "Intel Xeon Gold",
-    ram_gb: 256,
-    gpu: "NVIDIA A2",
-    storage_gb: 10000,
-    location: "Lab F",
-    tags: ["server", "linux", "ci"]
+    tags: ["server", "linux", "ci"],
+    status: "offline"
   }
 ];
 
@@ -654,15 +549,31 @@ try {
   inserted = 0;
   for (const m of machines) {
     const result = await pool.query(
-      `INSERT INTO machines (name, type, os, cpu, ram_gb, gpu, storage_gb, location, tags)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-       ON CONFLICT (name) DO NOTHING
+      `INSERT INTO machines (name, type, os, cpu, ram_gb, gpu, storage_gb, location, tags, status)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+       ON CONFLICT (name) DO UPDATE
+       SET type = EXCLUDED.type,
+           os = EXCLUDED.os,
+           cpu = EXCLUDED.cpu,
+           ram_gb = EXCLUDED.ram_gb,
+           gpu = EXCLUDED.gpu,
+           storage_gb = EXCLUDED.storage_gb,
+           location = EXCLUDED.location,
+           tags = EXCLUDED.tags,
+           status = EXCLUDED.status
        RETURNING id`,
-      [m.name, m.type, m.os, m.cpu, m.ram_gb, m.gpu, m.storage_gb, m.location, m.tags]
+      [m.name, m.type, m.os, m.cpu, m.ram_gb, m.gpu, m.storage_gb, m.location, m.tags, m.status ?? "available"]
     );
     if (result.rowCount) inserted += 1;
   }
-  console.log(`Seeded machines: ${inserted} inserted, ${machines.length - inserted} skipped`);
+
+  const names = machines.map((machine) => machine.name);
+  const removed = await pool.query(
+    "DELETE FROM machines WHERE name <> ALL($1::text[]) RETURNING id",
+    [names]
+  );
+
+  console.log(`Seeded machines: ${inserted} upserted, ${removed.rowCount ?? 0} removed`);
 
   inserted = 0;
   for (const t of tests) {
