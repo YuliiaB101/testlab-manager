@@ -9,6 +9,23 @@ if (!process.env.DATABASE_URL) {
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
+const users = [
+  {
+    name: "user",
+    email: "user@user.com",
+    password_hash: "$2a$10$xEL9XD4GODxARi33hcsfQOgiZmwzxI.pyTrR1S7drGZXeSqHl9BaW",
+    created_at: "2026-01-28 20:17:19.099727+01",
+    role: "user"
+  },
+  {
+    name: "admin",
+    email: "admin@admin.com",
+    password_hash: "$2a$10$/Vwuq1byD6XKAjPaTgEUduP4byB1l/9EsqxIUFTT4GSubPArQpzMS",
+    created_at: "2026-02-06 20:39:32.961433+01",
+    role: "admin"
+  }
+] as const;
+
 const machines = [
   {
     name: "Atlas-01",
@@ -619,6 +636,22 @@ const tests = [
 
 try {
   let inserted = 0;
+  for (const user of users) {
+    const result = await pool.query(
+      `INSERT INTO users (name, email, password_hash, created_at, role)
+       VALUES ($1,$2,$3,$4,$5)
+       ON CONFLICT (email) DO UPDATE
+       SET name = EXCLUDED.name,
+           password_hash = EXCLUDED.password_hash,
+           role = EXCLUDED.role
+       RETURNING id`,
+      [user.name, user.email, user.password_hash, user.created_at, user.role]
+    );
+    if (result.rowCount) inserted += 1;
+  }
+  console.log(`Seeded users: ${inserted} upserted`);
+
+  inserted = 0;
   for (const m of machines) {
     const result = await pool.query(
       `INSERT INTO machines (name, type, os, cpu, ram_gb, gpu, storage_gb, location, tags)
@@ -634,15 +667,17 @@ try {
   inserted = 0;
   for (const t of tests) {
     const result = await pool.query(
-      `INSERT INTO tests (suite, name, description)
-       VALUES ($1,$2,$3)
-       ON CONFLICT (suite, name) DO NOTHING
+      `INSERT INTO tests (suite, name, description, estimated_duration)
+       VALUES ($1,$2,$3,$4)
+       ON CONFLICT (suite, name) DO UPDATE
+       SET description = EXCLUDED.description,
+           estimated_duration = EXCLUDED.estimated_duration
        RETURNING id`,
-      [t.suite, t.name, t.description]
+      [t.suite, t.name, t.description, 10]
     );
     if (result.rowCount) inserted += 1;
   }
-  console.log(`Seeded tests: ${inserted} inserted, ${tests.length - inserted} skipped`);
+  console.log(`Seeded tests: ${inserted} upserted`);
 } finally {
   await pool.end();
 }
