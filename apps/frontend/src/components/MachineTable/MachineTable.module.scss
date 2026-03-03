@@ -9,6 +9,7 @@
   background: #fff;
   border: 1px solid $color-border-strong;
   @include m.table-top-rounded(14px);
+  overflow: visible;
   box-shadow: 0 6px 18px rgba(21, 24, 40, 0.06);
 
   th,

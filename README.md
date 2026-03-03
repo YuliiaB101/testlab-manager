@@ -15,19 +15,27 @@ TestLab Manager is a full-stack TypeScript application designed to manage test l
 
 The project emphasizes backend state validation, safe concurrent operations, and a modular React architecture.
 
-**Live Demo:** [https://testlab-frontend.onrender.com/](https://testlab-frontend.onrender.com/)
+**Live Demo:**
+- [https://testlab-frontend.onrender.com/](https://testlab-frontend.onrender.com/)
 
 **Demo Accounts:**
 - Admin: admin@testlab.com / demo123
 - User: user@testlab.com / demo123
+> Note: The backend may need a few seconds to initialize on the first visit (free-tier hosting).
+
+## Video Walkthrough (1.5 min)
+
+<a href="https://youtu.be/32UvDjT5xqo">
+  <img src="https://img.youtube.com/vi/32UvDjT5xqo/maxresdefault.jpg" width="70%"/>
+</a>
 
 ---
 
 ## Table of Contents
 
 - [TestLab Manager](#testlab-manager)
-  - [Table of Contents](#table-of-contents)
   - [Video Walkthrough (1.5 min)](#video-walkthrough-15-min)
+  - [Table of Contents](#table-of-contents)
   - [Screenshots](#screenshots)
   - [Architecture \& Engineering Highlights](#architecture--engineering-highlights)
   - [Core Capabilities](#core-capabilities)
@@ -38,12 +46,6 @@ The project emphasizes backend state validation, safe concurrent operations, and
   - [Setup](#setup)
   - [System State Model](#system-state-model)
   - [Future Improvements](#future-improvements)
-
-## Video Walkthrough (1.5 min)
-
-<a href="https://youtu.be/32UvDjT5xqo">
-  <img src="https://img.youtube.com/vi/32UvDjT5xqo/maxresdefault.jpg" width="70%"/>
-</a>
 
 ## Screenshots
 
