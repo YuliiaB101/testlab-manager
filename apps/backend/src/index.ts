@@ -134,22 +134,27 @@ const registerSchema = z.object({
 });
 
 app.post("/api/auth/register", async (req: express.Request, res: express.Response) => {
-  const parsed = registerSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json(validationError(parsed.error));
+  try {
+    const parsed = registerSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json(validationError(parsed.error));
 
-  const { name, email, password } = parsed.data;
-  const existing = await pool.query("SELECT id FROM users WHERE email = $1", [email]);
-  if (existing.rowCount) return res.status(409).json({ error: "Email already used" });
+    const { name, email, password } = parsed.data;
+    const existing = await pool.query("SELECT id FROM users WHERE email = $1", [email]);
+    if (existing.rowCount) return res.status(409).json({ error: "Email already used" });
 
-  const passwordHash = await hashPassword(password);
-  const result = await pool.query(
-    "INSERT INTO users (name, email, password_hash) VALUES ($1,$2,$3) RETURNING id, name, email, role",
-    [name, email, passwordHash]
-  );
+    const passwordHash = await hashPassword(password);
+    const result = await pool.query(
+      "INSERT INTO users (name, email, password_hash) VALUES ($1,$2,$3) RETURNING id, name, email, role",
+      [name, email, passwordHash]
+    );
 
-  const user = result.rows[0];
-  const token = signToken(user.id);
-  res.json({ token, user });
+    const user = result.rows[0];
+    const token = signToken(user.id);
+    res.json({ token, user });
+  } catch (error) {
+    console.error("Register failed:", error);
+    res.status(500).json({ error: "Registration failed" });
+  }
 });
 
 const loginSchema = z.object({
@@ -158,25 +163,35 @@ const loginSchema = z.object({
 });
 
 app.post("/api/auth/login", async (req: express.Request, res: express.Response) => {
-  const parsed = loginSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json(validationError(parsed.error));
+  try {
+    const parsed = loginSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json(validationError(parsed.error));
 
-  const { email, password } = parsed.data;
-  const result = await pool.query("SELECT id, name, email, role, password_hash FROM users WHERE email=$1", [email]);
-  const user = result.rows[0];
-  if (!user) return res.status(401).json({ error: "Invalid credentials" });
+    const { email, password } = parsed.data;
+    const result = await pool.query("SELECT id, name, email, role, password_hash FROM users WHERE email=$1", [email]);
+    const user = result.rows[0];
+    if (!user) return res.status(401).json({ error: "Invalid credentials" });
 
-  const ok = await verifyPassword(password, user.password_hash);
-  if (!ok) return res.status(401).json({ error: "Invalid credentials" });
+    const ok = await verifyPassword(password, user.password_hash);
+    if (!ok) return res.status(401).json({ error: "Invalid credentials" });
 
-  const token = signToken(user.id);
-  res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
+    const token = signToken(user.id);
+    res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
+  } catch (error) {
+    console.error("Login failed:", error);
+    res.status(500).json({ error: "Login failed" });
+  }
 });
 
 app.get("/api/me", requireAuth, async (req: express.Request, res: express.Response) => {
-  const authReq = req as AuthRequest;
-  const result = await pool.query("SELECT id, name, email, role FROM users WHERE id=$1", [authReq.userId]);
-  res.json({ user: result.rows[0] });
+  try {
+    const authReq = req as AuthRequest;
+    const result = await pool.query("SELECT id, name, email, role FROM users WHERE id=$1", [authReq.userId]);
+    res.json({ user: result.rows[0] });
+  } catch (error) {
+    console.error("Fetch /api/me failed:", error);
+    res.status(500).json({ error: "Failed to fetch current user" });
+  }
 });
 
 app.get("/api/machines", async (req: express.Request, res: express.Response) => {
@@ -554,6 +569,12 @@ app.get("/api/test-runs", async (_req: express.Request, res: express.Response) =
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch test runs" });
   }
+});
+
+app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error("Unhandled API error:", err);
+  if (res.headersSent) return;
+  res.status(500).json({ error: "Internal server error" });
 });
 
 app.listen(port, () => {
