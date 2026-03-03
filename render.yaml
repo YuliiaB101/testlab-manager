@@ -3,6 +3,7 @@ services:
     name: testlab-backend
     runtime: node
     plan: free
+    healthCheckPath: /api/health
     rootDir: .
     buildCommand: YARN_PRODUCTION=false yarn install --frozen-lockfile && yarn workspace @testlab/backend build
     startCommand: NODE_ENV=production yarn workspace @testlab/backend start
