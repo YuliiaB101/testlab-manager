@@ -61,13 +61,33 @@ const validationError = (error) => {
         details: error.flatten()
     };
 };
+const createNotification = async (userId, title, body, status = "info") => {
+    if (!userId)
+        return;
+    const result = await pool.query("INSERT INTO notifications (user_id, title, body, status) VALUES ($1,$2,$3,$4) RETURNING *", [userId, title, body, status]);
+    return result.rows[0];
+};
+const createNotificationOnce = async (userId, title, body, status = "info") => {
+    if (!userId)
+        return;
+    const existing = await pool.query("SELECT id FROM notifications WHERE user_id=$1 AND title=$2 AND body=$3 LIMIT 1", [userId, title, body]);
+    if (existing.rowCount)
+        return;
+    return createNotification(userId, title, body, status);
+};
 const reconcileMachineStatuses = async () => {
     // Complete test runs that have finished
-    await pool.query(`UPDATE test_runs
+    const durationCompletedRuns = await pool.query(`UPDATE test_runs tr
      SET status='completed', finished_at=NOW()
-     WHERE status='running'
-     AND estimated_duration IS NOT NULL
-     AND (started_at + (estimated_duration || ' minutes')::interval) <= NOW()`);
+     FROM machines m
+     WHERE tr.status='running'
+     AND tr.estimated_duration IS NOT NULL
+     AND (tr.started_at + (tr.estimated_duration || ' minutes')::interval) <= NOW()
+     AND m.id = tr.machine_id
+     RETURNING tr.id, tr.user_id, m.name AS machine_name`);
+    for (const row of durationCompletedRuns.rows) {
+        await createNotification(row.user_id, "Tests completed", `Test run #${row.id} on ${row.machine_name} is completed.`, "success");
+    }
     // Activate reservations that have started
     await pool.query(`UPDATE reservations
      SET status='active'
@@ -76,9 +96,33 @@ const reconcileMachineStatuses = async () => {
     await pool.query(`UPDATE reservations
      SET status='completed'
      WHERE status='active' AND end_at <= NOW()`);
-    await pool.query(`UPDATE test_runs
-     SET status='completed', finished_at=COALESCE(finished_at, NOW())
-     WHERE status='running' AND finished_at IS NOT NULL AND finished_at <= NOW()`);
+    const finishedAtCompletedRuns = await pool.query(`UPDATE test_runs tr
+     SET status='completed', finished_at=COALESCE(tr.finished_at, NOW())
+     FROM machines m
+     WHERE tr.status='running'
+     AND tr.finished_at IS NOT NULL
+     AND tr.finished_at <= NOW()
+     AND m.id = tr.machine_id
+     RETURNING tr.id, tr.user_id, m.name AS machine_name`);
+    for (const row of finishedAtCompletedRuns.rows) {
+        await createNotification(row.user_id, "Tests completed", `Test run #${row.id} on ${row.machine_name} is completed.`, "success");
+    }
+    const endingSoonReservations = await pool.query(`SELECT r.id, r.user_id, r.session_name, r.end_at, m.name AS machine_name
+     FROM reservations r
+     JOIN machines m ON m.id = r.machine_id
+     WHERE r.status='active'
+       AND r.user_id IS NOT NULL
+       AND r.end_at > NOW()
+       AND r.end_at <= NOW() + INTERVAL '10 minutes'`);
+    const now = Date.now();
+    for (const row of endingSoonReservations.rows) {
+        const endAt = new Date(row.end_at).getTime();
+        const minutesLeft = Math.ceil((endAt - now) / 60000);
+        const warningThreshold = minutesLeft <= 5 ? 5 : 10;
+        const title = "Reservation warning";
+        const body = `Reservation #${row.id} on ${row.machine_name} ends in about ${warningThreshold} minutes.`;
+        await createNotificationOnce(row.user_id, title, body, "warning");
+    }
     await pool.query(`UPDATE machines m
      SET status = CASE
        WHEN m.status = 'offline' THEN 'offline'
@@ -209,6 +253,7 @@ app.post("/api/machines/:id/reservations", requireAuth, async (req, res) => {
         }
         if (machineRes.rows[0].status === "reserved") {
             await client.query("ROLLBACK");
+            await createNotification(authReq.userId, "Reservation warning", "Reservation cannot be created because the machine is already reserved.", "warning");
             return res.status(409).json({ error: "Machine is reserved" });
         }
         await client.query(`INSERT INTO reservations (user_id, machine_id, session_name, start_at, end_at, setup_options, test_plan)
@@ -246,10 +291,12 @@ app.post("/api/machines/:id/lock", requireAuth, requireAdmin, async (req, res) =
         }
         if (machineRes.rows[0].status === "reserved" && !force) {
             await client.query("ROLLBACK");
+            await createNotification(authReq.userId, "Lock warning", "Machine lock is blocked because the machine is reserved.", "warning");
             return res.status(409).json({ error: "Machine is reserved" });
         }
         if (machineRes.rows[0].status === "busy" && !force) {
             await client.query("ROLLBACK");
+            await createNotification(authReq.userId, "Lock warning", "Machine lock is blocked because tests are currently running.", "warning");
             return res.status(409).json({ error: "Machine is busy" });
         }
         if (force) {
@@ -257,23 +304,13 @@ app.post("/api/machines/:id/lock", requireAuth, requireAdmin, async (req, res) =
             for (const row of cancelled.rows) {
                 if (!row.user_id)
                     continue;
-                await client.query("INSERT INTO notifications (user_id, title, body, status) VALUES ($1,$2,$3,$4)", [
-                    row.user_id,
-                    "Reservation cancelled",
-                    `Your reservation '${row.session_name}' was cancelled due to admin lock.`,
-                    "error"
-                ]);
+                await createNotification(row.user_id, "Reservation cancelled", `Your reservation '${row.session_name}' was cancelled due to admin lock.`, "error");
             }
             const cancelledRuns = await client.query("UPDATE test_runs SET status='cancelled', finished_at=NOW() WHERE machine_id=$1 AND status='running' RETURNING user_id", [machineId]);
             for (const row of cancelledRuns.rows) {
                 if (!row.user_id)
                     continue;
-                await client.query("INSERT INTO notifications (user_id, title, body, status) VALUES ($1,$2,$3,$4)", [
-                    row.user_id,
-                    "Tests interrupted",
-                    "Your tests were interrupted by an admin lock.",
-                    "error"
-                ]);
+                await createNotification(row.user_id, "Tests interrupted", "Your tests were interrupted by an admin lock.", "error");
             }
         }
         await client.query(`INSERT INTO reservations (user_id, machine_id, session_name, start_at, end_at, setup_options, test_plan)
@@ -306,6 +343,7 @@ app.post("/api/machines/:id/unlock", requireAuth, requireAdmin, async (req, res)
         const adminRes = await client.query("SELECT id FROM reservations WHERE machine_id=$1 AND user_id=$2 AND status='active' AND setup_options @> $3::jsonb", [machineId, authReq.userId, JSON.stringify({ flags: ["admin-reservation"] })]);
         if (machineRes.rows[0].status !== "locked" && !adminRes.rowCount) {
             await client.query("ROLLBACK");
+            await createNotification(authReq.userId, "Unlock warning", "Machine is not locked, so unlock was skipped.", "warning");
             return res.status(409).json({ error: "Machine is not locked" });
         }
         if (adminRes.rowCount) {
@@ -366,7 +404,7 @@ app.post("/api/reservations/:id/complete", requireAuth, async (req, res) => {
         await client.query("COMMIT");
         // Update machine statuses considering all reservations and tests
         await reconcileMachineStatuses();
-        await pool.query("INSERT INTO notifications (user_id, title, body, status) VALUES ($1,$2,$3,$4)", [authReq.userId, "Job completed", `Session '${reservation.session_name}' finished on ${reservation.end_at}`, "success"]);
+        await createNotification(authReq.userId, "Job completed", `Session '${reservation.session_name}' finished on ${reservation.end_at}`, "success");
         res.json({ ok: true });
     }
     catch {
@@ -393,8 +431,8 @@ app.post("/api/notifications", requireAuth, async (req, res) => {
     if (!parsed.success)
         return res.status(400).json(validationError(parsed.error));
     const { title, body, status } = parsed.data;
-    const result = await pool.query("INSERT INTO notifications (user_id, title, body, status) VALUES ($1,$2,$3,$4) RETURNING *", [authReq.userId, title, body, status || "info"]);
-    res.json({ notification: result.rows[0] });
+    const notification = await createNotification(authReq.userId, title, body, status || "info");
+    res.json({ notification });
 });
 app.get("/api/tests", async (_req, res) => {
     const result = await pool.query("SELECT * FROM tests ORDER BY suite DESC");
@@ -422,6 +460,7 @@ app.post("/api/tests/run", requireAuth, async (req, res) => {
         }
         if (machineRes.rows[0].status !== "available") {
             await client.query("ROLLBACK");
+            await createNotification(authReq.userId, "Run warning", "Tests cannot start because the selected machine is not available.", "warning");
             return res.status(409).json({ error: "Machine is not available" });
         }
         await client.query("UPDATE machines SET status='busy' WHERE id=$1", [machineId]);

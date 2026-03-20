@@ -83,6 +83,21 @@ const createNotification = async (
   return result.rows[0];
 };
 
+const createNotificationOnce = async (
+  userId: number | undefined,
+  title: string,
+  body: string,
+  status: "info" | "warning" | "error" | "success" = "info"
+) => {
+  if (!userId) return;
+  const existing = await pool.query(
+    "SELECT id FROM notifications WHERE user_id=$1 AND title=$2 AND body=$3 LIMIT 1",
+    [userId, title, body]
+  );
+  if (existing.rowCount) return;
+  return createNotification(userId, title, body, status);
+};
+
 const reconcileMachineStatuses = async () => {
   // Complete test runs that have finished
   const durationCompletedRuns = await pool.query(
@@ -137,6 +152,27 @@ const reconcileMachineStatuses = async () => {
       `Test run #${row.id} on ${row.machine_name} is completed.`,
       "success"
     );
+  }
+
+  const endingSoonReservations = await pool.query(
+    `SELECT r.id, r.user_id, r.session_name, r.end_at, m.name AS machine_name
+     FROM reservations r
+     JOIN machines m ON m.id = r.machine_id
+     WHERE r.status='active'
+       AND r.user_id IS NOT NULL
+       AND r.end_at > NOW()
+       AND r.end_at <= NOW() + INTERVAL '10 minutes'`
+  );
+
+  const now = Date.now();
+  for (const row of endingSoonReservations.rows) {
+    const endAt = new Date(row.end_at).getTime();
+    const minutesLeft = Math.ceil((endAt - now) / 60000);
+    const warningThreshold = minutesLeft <= 5 ? 5 : 10;
+
+    const title = "Reservation warning";
+    const body = `Reservation #${row.id} on ${row.machine_name} ends in about ${warningThreshold} minutes.`;
+    await createNotificationOnce(row.user_id, title, body, "warning");
   }
 
   await pool.query(
