@@ -60,7 +60,6 @@ export interface TestRun {
   user_id: number | null;
   status: "running" | "completed" | "cancelled";
   tests_count: number;
-  test_ids: number[];
   started_at: string;
   finished_at: string | null;
   estimated_duration?: number;

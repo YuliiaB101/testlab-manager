@@ -60,10 +60,15 @@ CREATE TABLE IF NOT EXISTS test_runs (
   user_id INT REFERENCES users(id) ON DELETE SET NULL,
   status TEXT NOT NULL DEFAULT 'running',
   tests_count INT NOT NULL DEFAULT 0,
-  test_ids INT[] NOT NULL DEFAULT '{}',
   started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   finished_at TIMESTAMPTZ,
   estimated_duration INT NOT NULL DEFAULT 30
+);
+
+CREATE TABLE IF NOT EXISTS test_run_items (
+  id SERIAL PRIMARY KEY,
+  test_run_id INT NOT NULL REFERENCES test_runs(id) ON DELETE CASCADE,
+  test_id INT NOT NULL REFERENCES tests(id) ON DELETE CASCADE
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS tests_suite_name_unique ON tests (suite, name);

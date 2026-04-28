@@ -287,7 +287,7 @@ app.get("/api/machines/:id", async (req: express.Request, res: express.Response)
   const result = await pool.query("SELECT * FROM machines WHERE id=$1", [id]);
   if (!result.rowCount) return res.status(404).json({ error: "Not found" });
   const activity = await pool.query(
-    "SELECT id, machine_id, user_id, status, tests_count, test_ids, started_at, finished_at, estimated_duration FROM test_runs WHERE machine_id=$1 AND status='running' ORDER BY started_at DESC LIMIT 1",
+    "SELECT id, machine_id, user_id, status, tests_count, started_at, finished_at, estimated_duration FROM test_runs WHERE machine_id=$1 AND status='running' ORDER BY started_at DESC LIMIT 1",
     [id]
   );
   res.json({ machine: { ...result.rows[0], current_activity: activity.rows[0] || null } });
@@ -640,9 +640,16 @@ app.post("/api/tests/run", requireAuth, async (req: express.Request, res: expres
 
     await client.query("UPDATE machines SET status='busy' WHERE id=$1", [machineId]);
     const runRes = await client.query(
-      "INSERT INTO test_runs (machine_id, user_id, status, tests_count, test_ids, estimated_duration) VALUES ($1,$2,'running',$3,$4,$5) RETURNING *",
-      [machineId, authReq.userId, testIds.length, testIds, estimatedDuration]
+      "INSERT INTO test_runs (machine_id, user_id, status, tests_count, estimated_duration) VALUES ($1,$2,'running',$3,$4) RETURNING *",
+      [machineId, authReq.userId, testIds.length, estimatedDuration]
     );
+    const testRunId = runRes.rows[0].id;
+    for (const testId of testIds) {
+      await client.query(
+        "INSERT INTO test_run_items (test_run_id, test_id) VALUES ($1,$2)",
+        [testRunId, testId]
+      );
+    }
     await client.query("COMMIT");
     res.json({ run: runRes.rows[0] });
   } catch (error) {

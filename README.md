@@ -11,9 +11,9 @@
 ![Recharts](https://img.shields.io/badge/Charts-Recharts-ff6384)
 ![Monorepo](https://img.shields.io/badge/Structure-Monorepo-blueviolet)
 
-TestLab Manager is a full-stack TypeScript application designed to manage test lab workflows: machine reservations, test execution, administrative maintenance and notifications.
+TestLab Manager is a full-stack TypeScript application that models a shared test lab environment with machine reservations, test execution, administrative locking, and activity tracking.
 
-The project emphasizes backend state validation, safe concurrent operations, and a modular React architecture.
+The project is designed around a backend-first approach: the server acts as the source of truth for machine availability, access control, and domain rules, while the frontend provides role-aware workflows and operational visibility.
 
 **Live Demo:**
 - [https://testlab-frontend.onrender.com/](https://testlab-frontend.onrender.com/)
@@ -21,7 +21,7 @@ The project emphasizes backend state validation, safe concurrent operations, and
 **Demo Accounts:**
 - Admin: admin@testlab.com / demo123
 - User: user@testlab.com / demo123
-> Note: The backend may need a few seconds to initialize on the first visit (free-tier hosting).
+> Note: The backend may need a few seconds to initialize on the first visit due to free-tier hosting.
 
 ## Video Walkthrough (1.5 min)
 
@@ -36,16 +36,42 @@ The project emphasizes backend state validation, safe concurrent operations, and
 - [TestLab Manager](#testlab-manager)
   - [Video Walkthrough (1.5 min)](#video-walkthrough-15-min)
   - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Why This Project Matters](#why-this-project-matters)
   - [Screenshots](#screenshots)
   - [Architecture \& Engineering Highlights](#architecture--engineering-highlights)
+  - [Database Schema](#database-schema)
   - [Core Capabilities](#core-capabilities)
+  - [Domain Rules](#domain-rules)
   - [Security \& Validation](#security--validation)
+  - [API Design](#api-design)
+  - [Frontend Responsibilities](#frontend-responsibilities)
   - [Tech Stack](#tech-stack)
     - [Frontend](#frontend)
     - [Backend](#backend)
   - [Setup](#setup)
-  - [System State Model](#system-state-model)
+  - [Operational States](#operational-states)
   - [Future Improvements](#future-improvements)
+
+---
+
+## Overview
+
+TestLab Manager models a real-world scenario where multiple users interact with shared hardware resources that cannot be used, reserved, or locked at the same time.
+
+The main engineering challenge is enforcing correct machine availability under concurrent operations, while keeping business rules centralized in the backend and exposing a clear, usable interface in the frontend.
+
+---
+
+## Why This Project Matters
+
+This project goes beyond CRUD by focusing on stateful resource management and conflict prevention.
+
+It demonstrates how to design a full-stack system where:
+- machine availability is derived from backend rules rather than UI assumptions,
+- invalid operations are rejected server-side,
+- critical workflows remain consistent under concurrent access,
+- the frontend reflects operational constraints instead of duplicating business logic.
 
 ## Screenshots
 
@@ -101,14 +127,42 @@ Available → Reserved → Busy → Locked → Offline
 
 ---
 
+## Database Schema
+
+The diagram below shows a simplified version of the core database model used by TestLab Manager.
+
+It focuses on the main entities and relationships behind reservations, machine usage, and test execution, while omitting supporting tables and lower-level details for readability.
+
+> `notifications` and other secondary structures are intentionally omitted from the diagram to keep the core workflow clear.
+
+![Database scheme](./docs/Scheme.png)
+
+---
+
 ## Core Capabilities
 
-- **Machine Reservation** – Schedule machines for specific time slots
-- **Test Execution** – Queue and monitor test runs
-- **Machine Locking (Admin)** – Maintenance mode with override support
-- **Machines Table and Timeline** – Dual-view interface with structured machine list and timeline-based status visualization with filtering
-- **Notifications** – In-app system events and updates
-- **Analytics** – Usage statistics and activity overview
+- **Machine Reservation** — schedule machine usage for specific time windows with conflict checks.
+- **Test Execution** — start and track test runs tied to machine availability.
+- **Machine Locking** — place machines into maintenance mode and prevent normal user actions.
+- **Role-Based Access Control** — enforce different permissions for users and administrators.
+- **Operational Views** — browse machine state through table and timeline interfaces.
+- **Notifications & Activity Tracking** — surface important system events and recent actions.
+- **Analytics** — provide usage insights and activity summaries.
+
+---
+
+## Domain Rules
+
+The backend enforces domain-specific invariants to keep machine usage valid and predictable.
+
+Examples of rules enforced server-side:
+- a locked machine cannot be reserved or used for a test run,
+- overlapping reservations are rejected,
+- a machine cannot be used by conflicting active operations,
+- administrative actions can override user flows where explicitly allowed,
+- machine state must remain consistent with the operation being performed.
+
+This logic is intentionally centralized in the backend so that correctness does not depend on client behavior.
 
 ---
 
@@ -122,23 +176,59 @@ Available → Reserved → Busy → Locked → Offline
 
 ---
 
+## API Design
+
+The backend exposes a REST API centered around machine availability, reservation workflows, and test execution.
+
+Examples of key endpoints:
+- `POST /machines/:id/reservations` — create a reservation for a machine
+- `GET /reservations` — list current user reservations
+- `GET /machines` — fetch machines with current state
+- `POST /machines/:id/lock` — lock a machine as admin
+- `POST /tests/run` — start a test run
+- `GET /test-runs` — fetch test run history
+- `GET /notifications` — fetch user notifications
+
+The API is designed so that validation happens on the server, not in the client alone.
+
+---
+
+## Frontend Responsibilities
+
+The frontend is built with React and TypeScript and focuses on presenting backend-driven workflows clearly.
+
+Key frontend concerns:
+- modular component structure,
+- role-aware UI behavior,
+- table and timeline visualizations,
+- filtering and status presentation,
+- user feedback around reservations, test runs, and machine state.
+
+Rather than duplicating backend rules, the frontend reflects the current system state and exposes only the actions that make sense for the user and machine context.
+
+---
+
 ## Tech Stack
 
 ### Frontend
 
-- React 18 + TypeScript
+- React 18
+- TypeScript
 - Vite
-- CSS Modules + SCSS
+- SCSS / CSS Modules
 - React Router
 - Reusable UI components (tables, badges, filters)
+- Recharts
 
 ### Backend
 
-- Node.js + Express (TypeScript)
+- Node.js
+- Express
+- TypeScript
 - PostgreSQL
 - JWT Authentication
 - RBAC middleware
-- Transactional updates for machine state, reservations, and test runs
+- Transaction-based state updates
 
 ---
 
@@ -183,19 +273,29 @@ yarn dev:frontend
 
 </details>
 
-## System State Model
+## Operational States
 
-**Machine lifecycle:**
-- Available
-- Reserved
-- Busy
-- Locked
-- Offline
+Machines can be in several mutually exclusive operational states depending on current usage or administrative restrictions:
 
-**Test runs:**
-- Running
-- Completed
-- Cancelled
+- `available`
+- `reserved`
+- `busy`
+- `locked`
+- `offline`
+
+Test runs also have their own execution states:
+
+- `running`
+- `completed`
+- `cancelled`
+
+Example:
+- `reserved` means the machine is scheduled for use.
+- `busy` means it is actively involved in a test run.
+- `locked` means it is unavailable due to administrative action or maintenance.
+- `running` means the test run is currently in progress.
+- `completed` means the run finished successfully.
+- `cancelled` means the run was stopped before completion.
 
 ---
 
