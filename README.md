@@ -135,7 +135,9 @@ It focuses on the main entities and relationships behind reservations, machine u
 
 > `notifications` and other secondary structures are intentionally omitted from the diagram to keep the core workflow clear.
 
+<div align="center">
 ![Database scheme](./docs/Scheme.png)
+</div>
 
 ---
 
