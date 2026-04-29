@@ -25,7 +25,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
     setInitialized(false);
-    apiMe(token)
+
+    // try to load current user with token
+    apiMe(token) 
       .then((data) => setUser(data.user))
       .catch(() => {
         setToken(null);
@@ -39,6 +41,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const data = await apiLogin(email, password);
     setUser(data.user);
     setToken(data.token);
+    // persist token in localStorage for future sessions
     localStorage.setItem("tlm_token", data.token);
   };
 
